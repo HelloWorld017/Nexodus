@@ -1,10 +1,21 @@
 <template>
 	<main id="app">
 		<div class="Titlebar">
-			<div class="Titlebar__buttons">
-				<object :data="require('./images/button-minmax.svg')" type="image/svg+xml" @click="minimize"></object>
-				<object :data="require('./images/button-minmax.svg')" type="image/svg+xml" @click="maximize"></object>
-				<object :data="require('./images/button-exit.svg')" type="image/svg+xml" @click="exit"></object>
+			<div class="Titlebar__buttons" v-if="handle">
+				<object :data="require('./images/button-minmax.svg')"
+					type="image/svg+xml"
+					@click="handle.minimize()">
+				</object>
+
+				<object :data="require('./images/button-minmax.svg')"
+					type="image/svg+xml"
+					@click="handle.maximize()">
+				</object>
+
+				<object :data="require('./images/button-exit.svg')"
+					type="image/svg+xml"
+					@click="handle.exit()">
+				</object>
 			</div>
 		</div>
 

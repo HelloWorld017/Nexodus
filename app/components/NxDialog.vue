@@ -5,7 +5,7 @@
 		</transition>
 
 		<transition name="Dialog">
-			<div class="Dialog" v-if="opened">
+			<div class="Dialog" v-if="opened" :style="{background}">
 				<a class="Dialog__close" @click="close">
 					<i class="mdi mdi-close"></i>
 				</a>
@@ -43,7 +43,6 @@
 		height: 70vh;
 		overflow: auto;
 
-		background: #f1f1f1;
 		border-radius: 5px;
 
 		&-enter-active, &-leave-active {
@@ -71,6 +70,13 @@
 			return {
 				opened: false
 			};
+		},
+
+		props: {
+			background: {
+				type: String,
+				default: '#f1f1f1'
+			}
 		},
 
 		methods: {

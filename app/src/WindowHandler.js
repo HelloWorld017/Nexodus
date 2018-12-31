@@ -1,7 +1,7 @@
-import {remote} from 'electron';
-
 class WindowHandle {
 	constructor() {
+		const {remote} = import('electron');
+
 		this.window = remote.getCurrentWindow();
 	}
 

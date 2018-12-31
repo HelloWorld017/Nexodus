@@ -6,6 +6,7 @@ const WebpackBarPlugin = require('webpackbar');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 const nodeEnv = (process.env.NODE_ENV || 'development').trim();
+const target = (process.env.NEXODUS_TARGET || '').trim() === 'electron' ? 'electron-renderer' : 'web';
 
 const styleLoader = nodeEnv !== 'production'
   ? 'vue-style-loader'
@@ -53,6 +54,7 @@ module.exports = {
   },
 
   mode: nodeEnv,
+  target,
 
   module: {
     rules: [

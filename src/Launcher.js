@@ -49,11 +49,11 @@ class Launcher {
 	async login(id, password, saveEmail=true, saveLogin=true) {
 		const firstHash = this.nexonLogin.firstHashPassword(password);
 
-		if(saveLogin){
+		if(saveLogin && saveEmail){
 			this.store.state.password = this.passwordHash;
 		}
 
-		if(saveEmail || saveLogin) {
+		if(saveEmail) {
 			this.store.state.id = this.id = id;
 			await this.store.state.save();
 		}
