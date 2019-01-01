@@ -32,8 +32,22 @@
 
 	* {
 		user-select: none;
-	}
 
+		&::-webkit-scrollbar {
+			background: rgba(255, 255, 255, .2);
+			border-radius: 8px;
+			width: 15px;
+			height: 8px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: rgba(255, 255, 255, .4);
+			border-radius: 8px;
+		}
+	}
+</style>
+
+<style lang="less" scoped>
 	#app {
 		display: flex;
 		flex-direction: column;
@@ -68,17 +82,9 @@
 
 <script>
 	export default {
-		methods: {
-			minimize() {
-
-			},
-
-			maximize() {
-
-			},
-
-			exit() {
-
+		computed: {
+			handle() {
+				return $nexodus.handle;
 			}
 		}
 	};

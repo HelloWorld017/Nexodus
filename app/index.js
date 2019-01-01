@@ -7,9 +7,11 @@ import Login from "./pages/Login.vue";
 import Nexodus from "./layouts/Nexodus.vue";
 import Vue from "vue";
 import VueRouter from "vue-router";
-import WindowHandler from "./src/WindowHandler";
+import Vuex from "vuex";
+import WindowHandle from "./src/WindowHandle";
 
 Vue.use(VueRouter);
+Vue.use(Vuex);
 
 window.$nexodus = {
 	version: '1.1.0',
@@ -19,8 +21,27 @@ window.$nexodus = {
 
 const init = async () => {
 	if($nexodus.environment === 'electron') {
-		$nexodus.handle = new WindowHandler();
+		$nexodus.handle = new WindowHandle(require('electron'));
 	}
+
+	$nexodus.store = new Vuex.Store({
+		state: {
+			config: {
+				general: {},
+				security: {}
+			}
+		},
+
+		mutations: {
+			configSet(state, config) {
+				state.config = config;
+			},
+
+			configUpdate(state, {section, config, value}) {
+				Vue.set(state.config[section], config, value);
+			}
+		}
+	});
 
 	$nexodus.router = new VueRouter({
 		routes: [
@@ -43,6 +64,7 @@ const init = async () => {
 
 	$nexodus.vm = new Vue({
 		router: $nexodus.router,
+		store: $nexodus.store,
 		el: "#app",
 		render(h) {
 			return h(App);

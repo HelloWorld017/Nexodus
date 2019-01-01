@@ -1,5 +1,10 @@
 export default {
 	general: {
+		__descriptor: {
+			name: '어플리케이션',
+			icon :'apps'
+		},
+
 		runOnStartup: {
 			name: '시작 시 실행',
 			desc: '윈도우 시작 시 Nexodus를 실행시킵니다.',
@@ -37,10 +42,31 @@ export default {
 			]
 		},
 
-		quitAfterLaunch: {
-			name: '게임 실행 후 종료',
-			desc: '게임을 실행시킨 후에 프로그램 종료 작업을 수행합니다.',
-			type: 'boolean'
+		afterLaunch: {
+			name: '게임 실행 후 동작',
+			desc: '게임을 실행시킨 후에 실행할 작업을 선택합니다.',
+			type: 'enum',
+			enums: [
+				{
+					name: '완전히 종료',
+					value: 'close'
+				},
+
+				{
+					name: '시스템 트레이로 최소화',
+					value: 'tray'
+				},
+
+				{
+					name: '작업 표시줄로 최소화',
+					value: 'minimize'
+				},
+
+				{
+					name: '가만히 있기',
+					value: 'no'
+				}
+			]
 		}
 	},
 

@@ -1,35 +1,44 @@
 <template>
 	<div class="Nexodus">
-		<div class="Nexodus__about">
-			<img class="Nexodus__logo" src="../images/nexodus.svg">
+		<transition name="Fade" mode="out-in">
+			<config key="config" v-if="configMode"></config>
+			<div class="Nexodus__about" key="about" v-else>
+				<img class="Nexodus__logo" src="../images/nexodus.svg">
 
-			<div class="Nexodus__info">
-				<h1 class="Nexodus__title">Nexodus</h1>
-				<div class="Nexodus__description">
-					<div class="Nexodus__version">Version {{version}}</div>
-					<div class="Nexodus__builddate">{{builddate}}</div>
+				<div class="Nexodus__info">
+					<h1 class="Nexodus__title">Nexodus</h1>
+					<div class="Nexodus__description">
+						<div class="Nexodus__version">Version {{version}}</div>
+						<div class="Nexodus__builddate">{{builddate}}</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</transition>
 
 		<div class="Nexodus__options">
-			<button class="Nexodus__option" @click="openAbout">
-				<i class="mdi mdi-information-outline"></i>
-				자세히
-			</button>
+			<transition name="FadeDelayed">
+				<button class="Nexodus__option" @click="openAbout" v-if="!configMode">
+					<i class="mdi mdi-information-outline"></i>
+					자세히
+				</button>
+			</transition>
 
-			<button class="Nexodus__option" @click="$refs.configDialog.open()">
-				<i class="mdi mdi-cogs"></i>
-				설정
+			<button class="Nexodus__option" @click="configMode = !configMode">
+				<transition name="Fade" mode="out-in">
+					<div key="close" v-if="configMode">
+						<i class="mdi mdi-close"></i>
+						닫기
+					</div>
+					<div key="config" v-else>
+						<i class="mdi mdi-cogs"></i>
+						설정
+					</div>
+				</transition>
 			</button>
 		</div>
 
 		<nx-dialog ref="aboutDialog">
 			<about></about>
-		</nx-dialog>
-
-		<nx-dialog ref="configDialog">
-			<config></config>
 		</nx-dialog>
 	</div>
 </template>
@@ -113,6 +122,30 @@
 			}
 		}
 	}
+
+	.Fade {
+		&-enter-active, &-leave-active {
+			transition: all .3s ease;
+		}
+
+		&-enter, &-leave-to {
+			opacity: 0;
+		}
+	}
+
+	.FadeDelayed {
+		&-leave-active {
+			transition: all .3s ease;
+		}
+
+		&-enter-active {
+			transition: all .3s ease .3s;
+		}
+
+		&-enter, &-leave-to {
+			opacity: 0;
+		}
+	}
 </style>
 
 <script>
@@ -121,6 +154,12 @@
 	import NxDialog from "../components/NxDialog.vue";
 
 	export default {
+		data() {
+			return {
+				configMode: false
+			};
+		},
+
 		components: {
 			About,
 			Config,
