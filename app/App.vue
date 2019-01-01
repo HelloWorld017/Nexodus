@@ -45,6 +45,17 @@
 			border-radius: 8px;
 		}
 	}
+	
+	.Fade {
+		&-enter-active, &-leave-active {
+			transition: all .3s ease;
+		}
+
+		&-enter, &-leave-to {
+			opacity: 0;
+		}
+	}
+
 </style>
 
 <style lang="less" scoped>

@@ -3,6 +3,7 @@ import isElectron from "is-electron";
 
 import App from "./App.vue";
 import Battlerite from "./games/battlerite";
+import EditSidebar from "./layouts/EditSidebar.vue";
 import Games from "./pages/Games.vue";
 import Launcher from "./src/Launcher";
 import Login from "./pages/Login.vue";
@@ -45,7 +46,9 @@ const Nexodus = {
 					activatedGames: [
 						'battlerite'
 					]
-				}
+				},
+
+				statistics: {}
 			},
 
 			mutations: {
@@ -55,6 +58,10 @@ const Nexodus = {
 
 				configUpdate(state, {section, config, value}) {
 					Vue.set(state.config[section], config, value);
+				},
+
+				statisticsSet(state, stats) {
+					state.statistics = stats;
 				}
 			}
 		});
@@ -72,6 +79,11 @@ const Nexodus = {
 						{
 							path: '',
 							component: NexodusLayout
+						},
+
+						{
+							path: 'add',
+							component: EditSidebar
 						},
 
 						...this.getRoutes()

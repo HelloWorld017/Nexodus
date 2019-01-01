@@ -9,6 +9,10 @@
 				<router-link class="Sidebar__tab" v-for="game in activatedGames" :key="game" :to="`/${game}`">
 					<img class="Sidebar__tab__icon" :src="getIcon(game)">
 				</router-link>
+
+				<router-link class="Sidebar__tab" to="/add">
+					<i class="Sidebar__tab__icon mdi mdi-plus"></i>
+				</router-link>
 			</div>
 		</aside>
 
@@ -54,6 +58,8 @@
 			align-items: center;
 			justify-content: center;
 
+			text-decoration: none;
+
 			&.router-link-exact-active {
 				background: #232E37;
 				cursor: default;
@@ -62,6 +68,15 @@
 			&__icon {
 				width: 48px;
 				height: 48px;
+
+				&.mdi {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+
+					color: #fff;
+					font-size: 3rem;
+				}
 			}
 		}
 	}

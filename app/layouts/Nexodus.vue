@@ -123,16 +123,6 @@
 		}
 	}
 
-	.Fade {
-		&-enter-active, &-leave-active {
-			transition: all .3s ease;
-		}
-
-		&-enter, &-leave-to {
-			opacity: 0;
-		}
-	}
-
 	.FadeDelayed {
 		&-leave-active {
 			transition: all .3s ease;

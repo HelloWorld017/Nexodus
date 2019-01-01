@@ -2,11 +2,92 @@
 	<div class="LaunchMenu">
 		<img class="LaunchMenu__logo" :src="src">
 
-		<button class="LaunchMenu__button" @click="$emit('launch')">
-			<span class="LaunchMenu__button__text">
-				게임 시작
-			</span>
-		</button>
+		<div class="LaunchMenu__row">
+			<div class="LaunchMenu__icon">
+				<i class="mdi mdi-play"></i>
+			</div>
+
+			<div class="LaunchMenu__actions">
+				<button class="LaunchMenu__action" @click="this.$emit('launch')">
+					게임 시작
+				</button>
+			</div>
+		</div>
+
+		<div class="LaunchMenu__row">
+			<div class="LaunchMenu__icon">
+				<i class="mdi mdi-heart-outline"></i>
+			</div>
+
+			<div class="LaunchMenu__actions">
+				<button class="LaunchMenu__action" @click="this.$emit('homepage')">
+					홈페이지
+				</button>
+			</div>
+		</div>
+
+		<div class="LaunchMenu__row">
+			<div class="LaunchMenu__icon">
+				<i class="mdi mdi-chart-line-variant"></i>
+			</div>
+
+			<div class="LaunchMenu__label">
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__key">
+						총 플레이 시간
+					</div>
+
+					<div class="LaunchMenu__label__key">
+						최근 플레이 날짜
+					</div>
+				</div>
+
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__value">
+						{{stats.total}}
+					</div>
+
+					<div class="LaunchMenu__label__value">
+						{{stats.recent}}
+					</div>
+				</div>
+			</div>
+
+			<div class="LaunchMenu__label">
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__key">
+						일주일간 플레이 시간
+					</div>
+
+					<div class="LaunchMenu__label__key">
+						연간 일주일 평균 플레이 시간
+					</div>
+				</div>
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__value">
+						{{stats.week}}
+					</div>
+
+					<div class="LaunchMenu__label__value">
+						{{stats.avgWeek}}
+					</div>
+				</div>
+			</div>
+
+			<div class="LaunchMenu__label">
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__key">
+						주간 하루 평균 플레이 시간
+					</div>
+				</div>
+
+				<div class="LaunchMenu__stacked">
+					<div class="LaunchMenu__label__value">
+						{{stats.average}}
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -20,65 +101,74 @@
 
 		&__logo {
 			max-height: 100px;
+			margin-bottom: 30px;
 		}
 
-		&__button {
-			position: absolute;
-			left: 80px;
-			bottom: 60px;
-			width: 25vw;
-			height: 15vh;
+		&__row {
+			display: flex;
+			align-items: stretch;
+			margin-top: 10px;
+			padding: 10px 30px;
+
+			background: rgba(0, 0, 0, .6);
+			color: #fff;
+		}
+
+		&__icon {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-right: 20px;
+
+			font-size: 2.5rem;
+		}
+
+		&__actions {
+			display: flex;
+			align-items: center;
+		}
+
+		&__action {
+			padding: 10px;
 
 			background: transparent;
-			border: none;
-			border-radius: 5px;
+			border: 1px solid #fff;
 			outline: none;
 
 			color: #fff;
-			font-size: 2rem;
 			font-family: 'Noto Sans CJK KR', sans-serif;
-			font-weight: 900;
 
 			cursor: pointer;
 			transition: all .4s ease;
 
-			&::before {
-				content: '';
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-
-				background: linear-gradient(45deg, #1fabff, #1d88de);
-				border-radius: 3px;
-				box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);
-				opacity: .8;
-				transition: all .4s ease;
-			}
-
 			&:hover {
-				box-shadow: 0 3px 16px 4px rgba(0, 0, 0, .2), 0 6px 18px 3px rgba(0, 0, 0, .13);
-
-				&::before {
-					opacity: 1;
-				}
-
-				.LaunchMenu__button__text {
-					color: #fff;
-				}
+				background: #fff;
+				color: #202020;
 			}
+		}
 
-			&:active {
-				.LaunchMenu__button__text {
-					color: rgba(255, 255, 255, .3);
+		&__stacked {
+			display: flex;
+			flex-direction: column;
+			margin-right: 10px;
+		}
+
+		&__label {
+			display: flex;
+			margin-right: 20px;
+
+			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-size: .9rem;
+			font-weight: 200;
+
+			&__key {
+				color: rgba(255, 255, 255, .6);
+
+				&::after {
+					content: ':';
+					margin-left: -4px;
+					margin-right: 5px;
 				}
-			}
-
-			&__text {
-				position: relative;
-				color: rgba(255, 255, 255, .5);
-				transition: all .4s ease;
 			}
 		}
 	}
@@ -87,7 +177,24 @@
 <script>
 	export default {
 		props: {
+			game: {
+				type: String,
+				required: true
+			},
+
 			src: String
+		},
+
+		computed: {
+			stats() {
+				return this.$store.state.statistics[this.game] || {
+					total: 0,
+					recent: 0,
+					week: 0,
+					avgWeek: 0,
+					average: 0
+				};
+			}
 		}
 	};
 </script>

@@ -1,25 +1,27 @@
 <template>
-	<div class="Battlerite">
-		<launch-menu v-if="!launching" :src="require('./assets/Battlerite.png')"></launch-menu>
+	<game class="Battlerite" :background="require('./assets/Background.png')">
+		<transition name="Fade">
+			<launch-menu v-if="!launching" :src="require('./assets/Battlerite.png')" game="battlerite"></launch-menu>
 
-		<div class="Battlerite__launch" v-if="launching">
-			<div class="Battlerite__tab Arena">
-				<img class="Battlerite__background" src="./assets/Arena.png">
-				<img class="Battlerite__icon Arena__icon" src="./assets/Battlerite.png">
-			</div>
+			<div class="Battlerite__launch" v-if="launching">
+				<div class="Battlerite__tab Arena">
+					<img class="Battlerite__background" src="./assets/Arena.png">
+					<img class="Battlerite__icon Arena__icon" src="./assets/Battlerite.png">
+				</div>
 
-			<div class="Battlerite__tab Royale">
-				<img class="Battlerite__background" src="./assets/Royale.png">
-				<img class="Battlerite__icon" src="./assets/RoyaleLogo.png">
+				<div class="Battlerite__tab Royale">
+					<img class="Battlerite__background" src="./assets/Royale.png">
+					<img class="Battlerite__icon" src="./assets/RoyaleLogo.png">
+				</div>
 			</div>
-		</div>
-	</div>
+		</transition>
+	</game>
 </template>
 
 <style lang="less" scoped>
 	.Battlerite {
 		height: 100%;
-		
+
 		&__launch {
 			display: flex;
 		}
@@ -52,10 +54,12 @@
 </style>
 
 <script>
+	import Game from "../../layouts/Game.vue";
 	import LaunchMenu from "../../layouts/LaunchMenu.vue";
 
 	export default {
 		components: {
+			Game,
 			LaunchMenu
 		},
 
