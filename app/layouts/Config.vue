@@ -2,16 +2,8 @@
 	<div class="Config">
 		<h1><i class="mdi mdi-cogs"></i> 설정</h1>
 		<div class="Config__sections">
-			<div class="Config__section" v-for="(sectionObject, sectionKey) in descriptor"
-				:class="{'Config__section--descriptor': sectionObject.__descriptor}">
-
-				<!-- <h1 class="Config__section__descriptor" v-if="sectionObject.__descriptor">
-					<i class="mdi" :class="`mdi-${sectionObject.__descriptor.icon}`"></i>
-					{{sectionObject.__descriptor.name}}
-				</h1> -->
-
+			<div class="Config__section" v-for="(sectionObject, sectionKey) in descriptor">
 				<div class="Config__row" v-for="(configObject, configKey) in sectionObject"
-					v-if="configKey !== '__descriptor'"
 					:style="getStyleObj(configObject)">
 
 					<div class="Config__line">
@@ -77,22 +69,6 @@
 			margin: 10px 0;
 			background: #1b2329;
 			box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .3);
-
-			/*
-			&--descriptor .Config__row:first-of-type {
-				margin-top: 0;
-			}
-
-			&__descriptor {
-				margin-top: 0;
-				color: #fff;
-				font-family: 'Noto Sans CJK KR', sans-serif;
-				font-size: 2.3rem;
-				font-weight: 700;
-
-				display: none;
-			}
-			*/
 		}
 
 		&__line {
@@ -111,7 +87,7 @@
 			margin-right: 10px;
 		}
 
-		&__buttonOuter {
+		&__buttonOuter * {
 			margin-top: 10px;
 		}
 

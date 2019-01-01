@@ -1,10 +1,5 @@
 export default {
 	general: {
-		__descriptor: {
-			name: '어플리케이션',
-			icon :'apps'
-		},
-
 		runOnStartup: {
 			name: '시작 시 실행',
 			desc: '윈도우 시작 시 Nexodus를 실행시킵니다.',
