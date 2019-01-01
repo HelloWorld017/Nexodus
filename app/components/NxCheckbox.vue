@@ -1,5 +1,5 @@
 <template>
-	<input class="NxCheckbox" type="checkbox" :id="inputId" v-model="_value">
+	<input class="NxCheckbox" :style="styleObject" type="checkbox" :id="inputId" v-model="_value" :disabled="disabled">
 </template>
 
 <style lang="less" scoped>
@@ -10,10 +10,13 @@
 
 		width: 60px;
 		height: 30px;
-		background: #727374;
 		border-radius: 15px;
 
 		transition: all .4s ease;
+
+		&[disabled]::after {
+			background: #cccccc;
+		}
 
 		&::after {
 			content: "";
@@ -31,12 +34,10 @@
 		}
 
 		&:checked {
-			background: #3399cc;
-
 			&::after {
 				left: 31px;
 
-				box-shadow: -2px 4px 3px rgba(0,0,0,0.05);
+				box-shadow: -2px 4px 3px rgba(0, 0, 0, 0.05);
 			}
 		}
 	}
@@ -50,12 +51,23 @@
 		},
 
 		props: {
-			inputId: {
-				type: String
+			inputId: String,
+			disabled: Boolean,
+			value: Boolean,
+
+			activeBackground: {
+				type: String,
+				default: '#3399cc'
 			},
 
-			value: {
-				type: Boolean
+			background: {
+				type: String,
+				default: '#727374'
+			},
+
+			disabledBackground: {
+				type: String,
+				default: '#444444'
 			}
 		},
 
@@ -68,6 +80,14 @@
 				set(v) {
 					return this.$emit('change', v);
 				}
+			},
+
+			styleObject() {
+				return {
+					background: this.disabled ?
+						this.disabledBackground :
+						this.value ? this.activeBackground : this.background
+				};
 			}
 		}
 	};

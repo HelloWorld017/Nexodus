@@ -7,7 +7,7 @@
 			<i class="NxSelect__icon mdi mdi-chevron-down"></i>
 		</button>
 
-		<div class="NxSelect__options">
+		<div class="NxSelect__options" v-click-outside="expanded = false">
 			<button class="NxSelect__option" v-for="option in options" @click="setValue(option.value)">
 				{{option.name}}
 			</button>
@@ -106,6 +106,8 @@
 </style>
 
 <script>
+	import ClickOutside from "vue-click-outside";
+	
 	export default {
 		data() {
 			return {
@@ -143,6 +145,10 @@
 
 				return selected.name;
 			}
+		},
+
+		directives: {
+			ClickOutside
 		}
 	};
 </script>

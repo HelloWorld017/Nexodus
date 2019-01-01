@@ -3,34 +3,35 @@
 		<h1><i class="mdi mdi-cogs"></i> 설정</h1>
 		<div class="Config__sections">
 			<div class="Config__section" v-for="(sectionObject, sectionKey) in descriptor">
-				<div class="Config__row" v-for="(configObject, configKey) in sectionObject"
-					:style="getStyleObj(configObject)">
+				<div class="Config__row" v-for="(conf, configKey) in sectionObject"
+					:style="getStyleObj(conf)">
 
 					<div class="Config__line">
 						<label class="Config__key" :for="`${sectionKey}.${configKey}`">
 							<span class="Config__name">
-								{{configObject.name}}
+								{{conf.name}}
 							</span>
 
 							<span class="Config__description">
-								{{configObject.desc}}
+								{{conf.desc}}
 							</span>
 						</label>
 
 						<div class="Config__button">
 							<nx-checkbox :value="config[sectionKey][configKey]"
 								:input-id="`${sectionKey}.${configKey}`"
+								:disabled="conf.requirements ? !config[sectionKey][conf.requirements] : false"
 								@change="updateConfig(sectionKey, configKey, $event)"
-								v-if="configObject.type === 'boolean'">
+								v-if="conf.type === 'boolean'">
 							</nx-checkbox>
 						</div>
 					</div>
 
 					<div class="Config__buttonOuter">
 						<nx-select :value="config[sectionKey][configKey]"
-							:options="configObject.enums"
+							:options="conf.enums"
 							@change="updateConfig(sectionKey, configKey, $event)"
-							v-if="configObject.type === 'enum'">
+							v-if="conf.type === 'enum'">
 						</nx-select>
 					</div>
 				</div>
