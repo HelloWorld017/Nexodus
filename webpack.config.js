@@ -84,7 +84,7 @@ module.exports = {
                 test: /\.(png|jpe?g|gif|woff2?|otf|wav|ttf|eot|svg)(\?|#.*)?$/,
                 loader: 'file-loader',
                 options: {
-                    name: 'files/[name].[ext]?[hash]'
+                    name: 'files/[hash].[ext]'
                 }
             }
         ]

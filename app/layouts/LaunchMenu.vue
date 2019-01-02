@@ -8,7 +8,7 @@
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="this.$emit('launch')">
+				<button class="LaunchMenu__action" @click="$emit('launch')">
 					게임 시작
 				</button>
 			</div>
@@ -20,7 +20,7 @@
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="this.$emit('homepage')">
+				<button class="LaunchMenu__action" @click="$emit('homepage')">
 					홈페이지
 				</button>
 			</div>
@@ -88,6 +88,8 @@
 				</div>
 			</div>
 		</div>
+
+		<slot></slot>
 	</div>
 </template>
 

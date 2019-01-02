@@ -1,7 +1,20 @@
 <template>
 	<main id="app">
 		<div class="Titlebar">
-			<div class="Titlebar__buttons" v-if="handle">
+			<div class="Titlebar__username" v-if="username" @click="toggleUsermenu" v-click-outside="closeUsermenu">
+				<i class="mdi mdi-account"></i>
+				{{username}}
+
+				<transition name="Fade">
+					<div class="Usermenu" v-if="usermenu">
+						<button @click="launcher.logout()">
+							로그아웃
+						</button>
+					</div>
+				</transition>
+			</div>
+
+			<div class="Titlebar__buttons">
 				<object :data="require('./images/button-minmax.svg')"
 					type="image/svg+xml"
 					@click="handle.minimize()">
@@ -19,7 +32,7 @@
 			</div>
 		</div>
 
-		<router-view></router-view>
+		<router-view class="Content"></router-view>
 	</main>
 </template>
 
@@ -45,7 +58,7 @@
 			border-radius: 8px;
 		}
 	}
-	
+
 	.Fade {
 		&-enter-active, &-leave-active {
 			transition: all .3s ease;
@@ -83,20 +96,95 @@
 		-webkit-user-select: none;
 		-webkit-app-region: drag;
 
+		&__username {
+			position: relative;
+			padding: 0 20px;
+			margin-right: 20px;
+			height: 48px;
+
+			color: rgba(255, 255, 255, .8);
+			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-size: .8rem;
+			line-height: 48px;
+		}
+
 		&__buttons * {
 			width: 18px;
 			height: 18px;
 			margin: 0 5px;
 		}
 	}
+
+	.Content {
+		flex: 1;
+	}
+
+	.Usermenu {
+		display: flex;
+		position: absolute;
+		top: 48px;
+		right: 0;
+		width: 150%;
+		z-index: 9;
+
+		button {
+			flex: 1;
+			padding: 10px 30px;
+
+			background: rgba(0, 0, 0, .8);
+			border: none;
+			outline: none;
+
+			color: #fff;
+			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-size: .9rem;
+
+			cursor: pointer;
+			transition: all .4s ease;
+
+			&:hover {
+				background: #3399cc;
+			}
+		}
+	}
 </style>
 
 <script>
+	import ClickOutside from "vue-click-outside";
+
 	export default {
+		data() {
+			return {
+				usermenu: false
+			};
+		},
+
 		computed: {
+			launcher() {
+				return $nexodus.launcher;
+			},
+
 			handle() {
 				return $nexodus.handle;
+			},
+
+			username() {
+				return this.$store.state.username;
 			}
+		},
+
+		methods: {
+			toggleUsermenu() {
+				this.usermenu = !this.usermenu
+			},
+
+			closeUsermenu() {
+				this.usermenu = false;
+			}
+		},
+
+		directives: {
+			ClickOutside
 		}
 	};
 </script>

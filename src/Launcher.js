@@ -3,6 +3,7 @@ const deepmerge = require('deepmerge');
 const defaultConfigs = require('./utils/configs');
 const opn = require('opn');
 
+const {ErrorLoginFailed} = require('./utils/Errors');
 const NexonLogin = require('./login/NexonLogin');
 const UserStore = require('./utils/UserStore');
 
@@ -21,6 +22,7 @@ class Launcher {
 		this.store = new UserStore();
 
 		this.id = null;
+		this.username = null;
 		this.passwordHash = null;
 		this.loggedIn = false;
 	}
@@ -70,6 +72,9 @@ class Launcher {
 		Object.keys(cookie).forEach(key => {
 			this.cookie[key] = cookie[key];
 		});
+
+		//TODO return username
+		//TODO set username
 	}
 
 	async getA2SK() {
@@ -85,18 +90,22 @@ class Launcher {
 		return a2skSetter.A2SK;
 	}
 
-	createLaunchURI(gameId, launchArgs) {
+	forget(forgetEmail=true, forgetPassword=true) {
+		//TODO
+	}
+
+	async createLaunchURI(gameId, launchArgs) {
 		if(!this.cookie['NPP']) throw new ErrorLoginFailed();
 
 		try {
-			this.cookie['A2SK'] = this.getA2SK();
+			this.cookie['A2SK'] = await this.getA2SK();
 		} catch(e) {
 			throw new ErrorServer();
 		}
 
 		const configuration = Object.assign(
 			{},
-			this.getDefaultLaunchConfiguration(),
+			this.getDefaultLaunchConfiguration(this.game[gameId]),
 			this.games[gameId].getStartArgs(launchArgs, this)
 		);
 
@@ -109,7 +118,7 @@ class Launcher {
 		return encodeURIComponent(argString);
 	}
 
-	getDefaultLaunchConfiguration() {
+	getDefaultLaunchConfiguration(game) {
 		return {
 			dll: 'platform.nexon.com/NGM/Bin/NGMDll.dll:1',
 			locale: 'KR',
@@ -117,12 +126,18 @@ class Launcher {
 			token: this.cookie['NPP'],
 			timestamp: Date.now(),
 			a2sk: this.cookie['A2SK'],
-			position: 'GameWeb|http://nexon.com'
+			position: `GameWeb|${game.gameWeb}`
 		};
 	}
 
 	launchGame(gameId, launchArgs) {
-		opn(this.createLaunchURI(gameId, launchArgs));
+		try {
+			await this.loginFromSaved();
+		} catch(e) {
+			throw new ErrorLoginFailed();
+		}
+
+		opn(await this.createLaunchURI(gameId, launchArgs));
 	}
 }
 

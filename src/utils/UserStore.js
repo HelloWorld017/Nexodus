@@ -28,6 +28,8 @@ class UserStore {
 		this.derivedHash = null;
 		this.storeInitiated = false;
 		this.state = {};
+
+		this.lastSaveRequest = Date.now();
 	}
 
 	async init() {
@@ -69,6 +71,15 @@ class UserStore {
 		encrypted += cipher.final('utf8');
 
 		await promisify(fs.writeFile)('./data/config.json', encrypted);
+	}
+
+	requestSave() {
+		const timestamp = Date.now();
+		this.lastSaveRequest = timestamp;
+
+		setTimeout(() => {
+			if(this.lastSaveRequest === timestamp) this.save();
+		}, 5000);
 	}
 
 	get keyString() {

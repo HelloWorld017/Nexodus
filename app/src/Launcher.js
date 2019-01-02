@@ -8,6 +8,18 @@ class Launcher {
 
 		});
 	}
+
+	logout() {
+
+	}
+
+	launch(gameName, options) {
+
+	}
+
+	homepage(gameName) {
+
+	}
 }
 
 export default Launcher;

@@ -5,6 +5,7 @@ import App from "./App.vue";
 import Battlerite from "./games/battlerite";
 import EditSidebar from "./layouts/EditSidebar.vue";
 import Games from "./pages/Games.vue";
+import Kartrider from "./games/Kartrider";
 import Launcher from "./src/Launcher";
 import Login from "./pages/Login.vue";
 import NexodusLayout from "./layouts/Nexodus.vue";
@@ -44,11 +45,13 @@ const Nexodus = {
 					general: {},
 					security: {},
 					activatedGames: [
-						'battlerite'
+
 					]
 				},
 
-				statistics: {}
+				statistics: {},
+
+				username: null
 			},
 
 			mutations: {
@@ -62,6 +65,14 @@ const Nexodus = {
 
 				statisticsSet(state, stats) {
 					state.statistics = stats;
+				},
+
+				activatedGamesSet(state, activated) {
+					state.config.activatedGames = activated;
+				},
+
+				usernameSet(state, username) {
+					state.username = username;
 				}
 			}
 		});
@@ -114,4 +125,5 @@ const Nexodus = {
 window.$nexodus = Nexodus;
 
 $nexodus.registerGame(Battlerite);
+$nexodus.registerGame(Kartrider);
 $nexodus.init();
