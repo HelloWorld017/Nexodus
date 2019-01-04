@@ -59,7 +59,7 @@ export default {
 
 				{
 					name: '가만히 있기',
-					value: 'no'
+					value: 'none'
 				}
 			]
 		}

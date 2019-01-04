@@ -41,7 +41,6 @@
 		flex-direction: column;
 		justify-content: center;
 		box-sizing: border-box;
-		margin-top: -48px;
 		padding: 0 60px;
 		width: 100%;
 		height: 100%;
@@ -94,6 +93,8 @@
 	import NxCheckbox from "../components/NxCheckbox.vue";
 	import NxTextInput from "../components/NxTextInput.vue";
 
+	import swal from "sweetalert2";
+
 	export default {
 		data() {
 			return {
@@ -113,8 +114,19 @@
 				if(!$nexodus.launcher) {
 					alert("Login not implemented!");
 				} else {
-					const response = await $nexodus.launcher.login(this.id, this.password);
-					//TODO handle response
+					try {
+						await $nexodus.launcher.login(this.id, this.password);
+						$nexodus.launcher.openLauncher();
+
+					} catch(e) {
+						const {message, isFatal} = e;
+
+						swal({
+							type: 'error',
+							title: '로그인에 실패했습니다.',
+							text: message
+						});
+					}
 				}
 
 				this.loggingIn = false;

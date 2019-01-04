@@ -1,5 +1,6 @@
 import "@mdi/font/css/materialdesignicons.css";
-import isElectron from "is-electron";
+import "./less/index.less";
+import trackConfig from "./src/trackConfig";
 
 import App from "./App.vue";
 import Battlerite from "./games/battlerite";
@@ -18,9 +19,9 @@ Vue.use(VueRouter);
 Vue.use(Vuex);
 
 const Nexodus = {
-	version: '1.1.0',
-	builddate: '2018.12.28',
-	environment: isElectron() ? 'electron' : 'web',
+	version: NEXODUS_VERSION,
+	builddate: NEXODUS_BUILDDATE,
+	environment: NEXODUS_ENVIRONMENT,
 	games: {},
 
 	registerGame(game) {
@@ -39,6 +40,16 @@ const Nexodus = {
 	},
 
 	async init() {
+		let plugins = [];
+
+		if(this.environment === 'electron-renderer') {
+			this.electron = require('electron');
+			this.handle = new WindowHandle(this.electron);
+			this.launcher = new Launcher(this.electron);
+
+			plugins.push(trackConfig(this.electron));
+		}
+
 		this.store = new Vuex.Store({
 			state: {
 				config: {
@@ -74,13 +85,27 @@ const Nexodus = {
 				usernameSet(state, username) {
 					state.username = username;
 				}
-			}
+			},
+
+			plugins
 		});
 
+		let mode = 'hash';
+		if(this.environment === 'electron-renderer') {
+			const {config, statistics, username} = await this.launcher.retrieveSettings();
+			this.store.commit('configSet', config);
+			this.store.commit('statisticsSet', statistics);
+			this.store.commit('usernameSet', username);
+
+			mode = 'history';
+		}
+
 		this.router = new VueRouter({
+			mode,
 			routes: [
 				{
 					path: '/login',
+					name: 'login',
 					component: Login
 				},
 				{
@@ -102,14 +127,6 @@ const Nexodus = {
 				}
 			]
 		});
-
-		if(this.environment === 'electron') {
-			const electron = require('electron');
-			this.handle = new WindowHandle(electron);
-			this.launcher = new Launcher(electron);
-
-			this.store.commit('configSet', await this.launcher.retrieveSettings());
-		}
 
 		this.vm = new Vue({
 			router: this.router,

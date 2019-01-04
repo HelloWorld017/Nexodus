@@ -3,7 +3,7 @@
 		<aside class="Sidebar">
 			<div class="Sidebar__tabs">
 				<router-link class="Sidebar__tab" to="/">
-					<img class="Sidebar__tab__icon" src="../images/nexodus.svg">
+					<nexodus class="Sidebar__tab__icon"></nexodus>
 				</router-link>
 
 				<router-link class="Sidebar__tab" v-for="game in activatedGames" :key="game" :to="`/${game}`">
@@ -95,6 +95,8 @@
 </style>
 
 <script>
+	import Nexodus from "../images/Nexodus.svg?inline";
+
 	export default {
 		computed: {
 			activatedGames() {
@@ -106,6 +108,10 @@
 			getIcon(game) {
 				return $nexodus.games[game].logo;
 			}
+		},
+
+		components: {
+			Nexodus
 		}
 	};
 </script>

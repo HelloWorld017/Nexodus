@@ -2,7 +2,7 @@ const CSON = require('cson');
 const {ErrorServer} = require('../utils/Errors');
 
 const Battlerite = {
-	getStartArgs(launcher, isRoyale) {
+	async getStartArgs(launcher, isRoyale) {
 		const {data: startGameToken} = await launcher.axios.post(
 			'http://battlerite.nexon.com/Common/GameStartControl',
 
@@ -13,7 +13,7 @@ const Battlerite = {
 			{
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Cookie': Object.keys(this.cookie).map(k => `${k}=${this.cookie[k]}`).join('; ') + ';',
+					'Cookie': launcher.cookieText,
 					'Referer': this.referer
 				}
 			}
@@ -43,4 +43,4 @@ const Battlerite = {
 	}
 };
 
-export default Battlerite;
+module.exports = Battlerite;

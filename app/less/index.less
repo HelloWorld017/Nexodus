@@ -1,0 +1,33 @@
+@import "./swal.less";
+
+body, html {
+	background: #1E272E;
+	margin: 0;
+	padding: 0;
+}
+
+* {
+	user-select: none;
+
+	&::-webkit-scrollbar {
+		background: rgba(255, 255, 255, .2);
+		border-radius: 8px;
+		width: 15px;
+		height: 8px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, .4);
+		border-radius: 8px;
+	}
+}
+
+.Fade {
+	&-enter-active, &-leave-active {
+		transition: all .3s ease;
+	}
+
+	&-enter, &-leave-to {
+		opacity: 0;
+	}
+}

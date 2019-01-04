@@ -1,3 +1,4 @@
+const package = require('./package.json');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -9,6 +10,8 @@ const nodeEnv = (process.env.NODE_ENV || 'development').trim();
 const target = (process.env.NEXODUS_TARGET || '').trim() === 'electron'
     ? 'electron-renderer'
     : 'web';
+
+console.log(`Building module for ${target}`);
 
 const styleLoader = nodeEnv !== 'production'
     ? 'vue-style-loader'
@@ -70,38 +73,79 @@ module.exports = {
                         }
                     }
                 }
-            }, {
+            },
+
+            {
                 test: /\.js$/,
                 loader: 'babel-loader',
                 exclude: [/node_modules/]
-            }, {
+            },
+
+            {
                 test: /\.less$/,
                 loader: lessLoader
-            }, {
+            },
+
+            {
                 test: /\.css$/,
                 use: cssLoader
-            }, {
-                test: /\.(png|jpe?g|gif|woff2?|otf|wav|ttf|eot|svg)(\?|#.*)?$/,
+            },
+
+            {
+                test: /\.svg$/,
+                oneOf: [
+                    {
+                        resourceQuery: /inline/,
+                        loader: 'vue-svg-loader',
+                        options: {
+                            svgo: false
+                        }
+                    },
+
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'files/[hash:8].[ext]'
+                        }
+                    }
+                ]
+            },
+
+            {
+                test: /\.(png|jpe?g|gif|woff2?|otf|wav|ttf|eot)(\?|#.*)?$/,
                 loader: 'file-loader',
                 options: {
-                    name: 'files/[hash].[ext]'
+                    name: 'files/[hash:8].[ext]'
                 }
             }
         ]
     },
 
     plugins: [
-        new webpack.IgnorePlugin(/^electron$/),
-        new webpack.EnvironmentPlugin({NODE_ENV: nodeEnv}),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(nodeEnv),
+            'NEXODUS_ENVIRONMENT': JSON.stringify(target),
+            'NEXODUS_BUILDDATE': JSON.stringify((() => {
+                const date = new Date();
+                return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
+            })()),
+            'NEXODUS_VERSION': JSON.stringify(package.version)
+        }),
         new MiniCssExtractPlugin({filename: '[name].bundle.css'}),
         new VueLoaderPlugin(),
         new WebpackBarPlugin({profile: true})
     ],
 
+    target,
+
     devtool: '#eval-source-map'
 };
 
-if (nodeEnv === 'production') {
+if(target === 'web') {
+    module.exports.plugins.push(new webpack.IgnorePlugin(/^electron$/));
+}
+
+if(nodeEnv === 'production') {
     module.exports.devtool = '#source-map';
     module.exports.optimization = {
         minimize: true

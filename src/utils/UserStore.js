@@ -1,9 +1,13 @@
+const crypto = require('crypto');
+const {exists} = require('./utils');
 const fs = require('fs');
 const {machineId} = require('node-machine-id');
+const os = require('os');
+const path = require('path');
 const {promisify} = require('util');
 
 class UserStore {
-	constructor() {
+	constructor(launcher) {
 		const network = os.networkInterfaces();
 		this.macs = Object.keys(network).map(k => {
 			const mac = network[k].reduce((prev, curr) => {
@@ -29,7 +33,10 @@ class UserStore {
 		this.storeInitiated = false;
 		this.state = {};
 
+		this.launcher = launcher;
 		this.lastSaveRequest = Date.now();
+
+		this.configPath = path.resolve('./data/config.json');
 	}
 
 	async init() {
@@ -45,16 +52,29 @@ class UserStore {
 			});
 
 			this.storeInitiated = true;
-		} catch(e) {}
+		} catch(e) {
+			this.launcher.nexodus.logError(e);
+		}
 
 		try {
+			const configDir = path.dirname(this.configPath);
+
+			if(!await exists(configDir)) {
+				await promisify(fs.mkdir)(configDir);
+			}
+
 			this.state = await this.load();
-		} catch(e) {}
+		} catch(e) {
+			this.launcher.nexodus.logError(e);
+		}
 	}
 
 	async load() {
-		const {encrypted, iv} = await promisify(fs.readFile)('./data/config.json', 'utf8');
-		const decipher = crypto.createDecipheriv('aes-256-cbc', this.derivedHash, iv);
+		if(!await exists(this.configPath))
+			return {};
+
+		const {encrypted, iv} = JSON.parse(await promisify(fs.readFile)(this.configPath, 'utf8'));
+		const decipher = crypto.createDecipheriv('aes-256-cbc', this.derivedHash, Buffer.from(iv, 'hex'));
 
 		let decrypted = decipher.update(encrypted, 'base64', 'utf8');
 		decrypted += decipher.final('utf8');
@@ -63,14 +83,20 @@ class UserStore {
 	}
 
 	async save() {
+		this.lastSaveRequest = Date.now();
+		
 		const decrypted = JSON.stringify(this.state);
 		const iv = await promisify(crypto.randomBytes)(16);
 		const cipher = crypto.createCipheriv('aes-256-cbc', this.derivedHash, iv);
 
 		let encrypted = cipher.update(decrypted, 'utf8', 'base64');
-		encrypted += cipher.final('utf8');
+		encrypted += cipher.final('base64');
 
-		await promisify(fs.writeFile)('./data/config.json', encrypted);
+		const ivText = iv.toString('hex');
+
+		await promisify(fs.writeFile)(this.configPath, JSON.stringify({
+			encrypted, iv: ivText
+		}));
 	}
 
 	requestSave() {

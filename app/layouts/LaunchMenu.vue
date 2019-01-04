@@ -48,7 +48,7 @@
 					</div>
 
 					<div class="LaunchMenu__label__value">
-						{{stats.recent}}
+						{{recent}}
 					</div>
 				</div>
 			</div>
@@ -56,16 +56,17 @@
 			<div class="LaunchMenu__label">
 				<div class="LaunchMenu__stacked">
 					<div class="LaunchMenu__label__key">
-						일주일간 플레이 시간
+						연간 하루 평균 플레이 시간
 					</div>
 
 					<div class="LaunchMenu__label__key">
-						연간 일주일 평균 플레이 시간
+						연간 주 평균 플레이 시간
 					</div>
 				</div>
+
 				<div class="LaunchMenu__stacked">
 					<div class="LaunchMenu__label__value">
-						{{stats.week}}
+						{{stats.average}}
 					</div>
 
 					<div class="LaunchMenu__label__value">
@@ -77,13 +78,12 @@
 			<div class="LaunchMenu__label">
 				<div class="LaunchMenu__stacked">
 					<div class="LaunchMenu__label__key">
-						주간 하루 평균 플레이 시간
+						최근 일주일 간 플레이 시간
 					</div>
 				</div>
-
 				<div class="LaunchMenu__stacked">
 					<div class="LaunchMenu__label__value">
-						{{stats.average}}
+						{{stats.week}}
 					</div>
 				</div>
 			</div>
@@ -191,11 +191,26 @@
 			stats() {
 				return this.$store.state.statistics[this.game] || {
 					total: 0,
-					recent: 0,
-					week: 0,
-					avgWeek: 0,
-					average: 0
+					recent: null,
+					weeks: [0],
+					currentWeek: 0
 				};
+			},
+
+			week() {
+				return this.stats.currentWeek;
+			},
+
+			avgWeek() {
+				return this.stats.weeks.reduce((prev, curr) => prev + curr, 0) / this.stats.weeks.length;
+			},
+
+			average() {
+				return this.avgWeek / 7;
+			},
+
+			recent() {
+				return this.stats.recent || '없음';
 			}
 		}
 	};

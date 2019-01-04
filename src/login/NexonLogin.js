@@ -3,7 +3,7 @@ const querystring = require('querystring');
 const {xml2js} = require('xml-js');
 
 const {ErrorLoginFailed, ErrorServer, ErrorWrongCredential} = require('../utils/Errors');
-const {NgbRSA} = require('./NgbRSA');
+const {NgbRSA} = require('../utils/NgbRSA');
 
 
 class NexonLogin {
@@ -112,14 +112,14 @@ class NexonLogin {
 			firstHash = this.firstHashPassword(password);
 		}
 
-		this.hmac.update(result2);
+		this.hmac.update(firstHash);
 
 		return this.hashKey.header + this.hmac.digest('hex').toUpperCase();
 	}
 
 	firstHashPassword(password) {
 		const hmac2 = crypto.createHmac('sha256', this.hardcodedHashKey);
-		const hmac2.update(password);
+		hmac2.update(password);
 
 		return hmac2.digest('hex').toUpperCase();
 	}

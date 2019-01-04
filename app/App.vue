@@ -15,61 +15,15 @@
 			</div>
 
 			<div class="Titlebar__buttons">
-				<object :data="require('./images/button-minmax.svg')"
-					type="image/svg+xml"
-					@click="handle.minimize()">
-				</object>
-
-				<object :data="require('./images/button-minmax.svg')"
-					type="image/svg+xml"
-					@click="handle.maximize()">
-				</object>
-
-				<object :data="require('./images/button-exit.svg')"
-					type="image/svg+xml"
-					@click="handle.exit()">
-				</object>
+				<button-minmax class="Titlebar__button" @click="handle.minimize()"></button-minmax>
+				<button-minmax class="Titlebar__button" @click="handle.maximize()" v-if="maximizable"></button-minmax>
+				<button-exit class="Titlebar__button Titlebar__button--exit" @click="handle.exit()"></button-exit>
 			</div>
 		</div>
 
 		<router-view class="Content"></router-view>
 	</main>
 </template>
-
-<style lang="less">
-	body, html {
-		background: #1E272E;
-		margin: 0;
-		padding: 0;
-	}
-
-	* {
-		user-select: none;
-
-		&::-webkit-scrollbar {
-			background: rgba(255, 255, 255, .2);
-			border-radius: 8px;
-			width: 15px;
-			height: 8px;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			background: rgba(255, 255, 255, .4);
-			border-radius: 8px;
-		}
-	}
-
-	.Fade {
-		&-enter-active, &-leave-active {
-			transition: all .3s ease;
-		}
-
-		&-enter, &-leave-to {
-			opacity: 0;
-		}
-	}
-
-</style>
 
 <style lang="less" scoped>
 	#app {
@@ -89,12 +43,12 @@
 		height: 48px;
 
 		box-sizing: border-box;
-		padding: 0 32px;
+		padding: 0;
+		padding-right: 18px;
 
 		background: #1E272E;
-
-		-webkit-user-select: none;
 		-webkit-app-region: drag;
+		user-select: none;
 
 		&__username {
 			position: relative;
@@ -106,12 +60,33 @@
 			font-family: 'Noto Sans CJK KR', sans-serif;
 			font-size: .8rem;
 			line-height: 48px;
+			-webkit-app-region: no-drag;
 		}
 
-		&__buttons * {
-			width: 18px;
-			height: 18px;
-			margin: 0 5px;
+		&__buttons {
+			-webkit-app-region: no-drag;
+
+			* {
+				width: 18px;
+				height: 18px;
+				margin: 0 5px;
+			}
+		}
+
+		&__button {
+			circle {
+				transition: all .4s ease;
+				fill: transparent;
+				cursor: pointer;
+			}
+
+			circle:hover {
+				fill: #fff;
+			}
+
+			&--exit circle:hover {
+				fill: #e26b6b;
+			}
 		}
 	}
 
@@ -150,6 +125,8 @@
 </style>
 
 <script>
+	import ButtonExit from "./images/ButtonExit.svg?inline";
+	import ButtonMinmax from "./images/ButtonMinmax.svg?inline";
 	import ClickOutside from "vue-click-outside";
 
 	export default {
@@ -170,17 +147,26 @@
 
 			username() {
 				return this.$store.state.username;
+			},
+
+			maximizable() {
+				return this.$route.name !== 'login';
 			}
 		},
 
 		methods: {
 			toggleUsermenu() {
-				this.usermenu = !this.usermenu
+				this.usermenu = !this.usermenu;
 			},
 
 			closeUsermenu() {
 				this.usermenu = false;
 			}
+		},
+
+		components: {
+			ButtonExit,
+			ButtonMinmax
 		},
 
 		directives: {

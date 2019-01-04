@@ -4,7 +4,7 @@ module.exports = {
 		runAsMinimized: false,
 		allowMultipleExecution: false,
 		closeMeansMinimize: true,
-		quitAfterLaunch: false
+		afterLaunch: 'none'
 	},
 
 	security: {
@@ -13,9 +13,6 @@ module.exports = {
 	},
 
 	activatedGames: [
-		'battlerite',
-		'crazyarcade',
-		'kartrider',
-		'maplestory'
+		'battlerite'
 	]
 };

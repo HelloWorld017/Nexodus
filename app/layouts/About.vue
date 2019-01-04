@@ -1,7 +1,7 @@
 <template>
 	<div class="About">
 		<div class="About__nexodus">
-			<img src="../images/nexodus-black.svg">
+			<nexodus-black class="About__logo"></nexodus-black>
 			<div class="About__info">
 				<h1>Nexodus</h1>
 				<div class="About__description">서드파티 넥슨 게임 런쳐</div>
@@ -33,11 +33,11 @@
 		&__nexodus {
 			display: flex;
 			align-items: center;
+		}
 
-			img {
-				width: 12vw;
-				height: 12vw;
-			}
+		&__logo {
+			width: 12vw;
+			height: 12vw;
 		}
 
 		&__info {
@@ -91,6 +91,8 @@
 </style>
 
 <script>
+	import NexodusBlack from "../images/NexodusBlack.svg?inline";
+
 	export default {
 		computed: {
 			version() {
@@ -100,6 +102,10 @@
 			builddate() {
 				return $nexodus.builddate;
 			}
+		},
+
+		components: {
+			NexodusBlack
 		}
 	}
 </script>

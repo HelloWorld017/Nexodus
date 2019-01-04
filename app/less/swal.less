@@ -1,0 +1,108 @@
+.swal2-container {
+	.swal2-popup {
+		border-radius: 0;
+		padding: 0;
+
+		.swal2 {
+			&-title {
+				font-family: 'NanumSquare', sans-serif;
+				color: #202020;
+				font-weight: 100;
+				font-size: 2rem;
+				padding: 30px;
+				margin-top: 10px;
+				word-break: keep-all;
+				text-align: left;
+			}
+
+			&-content {
+				font-family: 'Noto Sans CJK KR', sans-serif;
+				color: #202020;
+				font-weight: 400;
+				padding-left: 50px;
+				padding-right: 30px;
+
+				#swal2-content {
+					text-align: left;
+				}
+			}
+
+			&-actions {
+				display: flex;
+				justify-content: flex-end;
+				margin: 1.25em 0 0;
+				padding: 20px;
+			}
+
+			&-header {
+				align-items: stretch;
+			}
+
+			&-icon.swal2-error {
+				animation: none !important;
+				background: #e53935;
+				margin: 0;
+				border-radius: 0;
+				border: none;
+				color: #f1f1f1;
+				width: 100%;
+				height: 150px;
+
+				&::after {
+					animation: SwalError .5s forwards;
+					content: '';
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					border-radius: 50%;
+					width: 80px;
+					height: 80px;
+					border: .25rem solid #f1f1f1;
+				}
+
+				[class^="swal2-x-mark-line"]{
+					background: #f1f1f1;
+					top: 50%;
+					left: 50% !important;
+
+					&[class$="left"] {
+						transform: translate(-50%, -50%) rotate(45deg);
+					}
+
+					&[class$="right"] {
+						transform: translate(-50%, -50%) rotate(-45deg);
+					}
+				}
+			}
+
+			&-confirm.swal2-styled {
+				background: #202020;
+				border: none;
+				padding: 10px 30px;
+				cursor: pointer;
+				color: #f1f1f1;
+				font-family: 'Noto Sans CJK KR', sans-serif;
+				box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .3);
+				margin: 0 5px;
+				outline: none;
+				transition: all .4s ease;
+				white-space: nowrap;
+				text-align: center;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				font-size: .85rem;
+			}
+		}
+	}
+}
+
+@keyframes SwalError {
+	0% {
+		transform: translate(-50%, -50%) rotateX(60deg);
+	}
+
+	100% {
+		transform: translate(-50%, -50%) rotateX(0deg);
+	}
+}

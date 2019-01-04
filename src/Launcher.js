@@ -1,6 +1,6 @@
 const axios = require('axios');
 const deepmerge = require('deepmerge');
-const defaultConfigs = require('./utils/configs');
+const defaultConfig = require('./utils/configs');
 const opn = require('opn');
 
 const {ErrorLoginFailed} = require('./utils/Errors');
@@ -9,22 +9,26 @@ const UserStore = require('./utils/UserStore');
 
 
 class Launcher {
-	constructor(games) {
+	constructor(nexodus) {
 		this.axios = axios.create({
 			headers: {
 				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
 			}
 		});
 
-		this.nexonLogin = new NexonLogin();
-		this.games = games;
+		this.nexodus = nexodus;
+
+		this.nexonLogin = new NexonLogin(this);
+		this.games = nexodus.games;
 		this.cookie = {};
-		this.store = new UserStore();
+		this.store = new UserStore(this);
 
 		this.id = null;
 		this.username = null;
 		this.passwordHash = null;
 		this.loggedIn = false;
+
+		this.referer = 'https://www.nexon.com/Home/Game.aspx';
 	}
 
 	async init() {
@@ -44,7 +48,6 @@ class Launcher {
 
 		try {
 			await this.loginFromSaved();
-			this.loggedIn = true;
 		} catch(e) {}
 	}
 
@@ -57,7 +60,7 @@ class Launcher {
 
 		if(saveEmail) {
 			this.store.state.id = this.id = id;
-			await this.store.state.save();
+			await this.store.requestSave();
 		}
 
 		this.id = id;
@@ -73,21 +76,39 @@ class Launcher {
 			this.cookie[key] = cookie[key];
 		});
 
-		//TODO return username
-		//TODO set username
+		const {data: pjson} = await this.axios.get(
+			'https://ps.nexon.com/global/usernick.aspx?_vb=GetInfo&callback=callback',
+			{
+				headers: {
+					Referer: this.referer,
+					Cookie: this.cookieText
+				}
+			}
+		);
+
+		const {d: userList} = this.parsePJSON(pjson);
+		const [firstUser] = userList;
+
+		this.loggedIn = true;
+		this.username = firstUser.nickName;
+
+		return this.username;
 	}
 
 	async getA2SK() {
-		const {data: pjson} = await axios.get('http://act.nexon.com/act.nhs?_vb=GetSessionID&callback=callback', {
+		const {data: pjson} = await this.axios.get('http://act.nexon.com/act.nhs?_vb=GetSessionID&callback=callback', {
 			headers: {
-				Referer: this.referers['login']
+				Referer: this.referer
 			}
 		});
 
-		const jsonString = pjson.replace(/^callback\(/, '').replace(/\);?$/, '');
-		const {response: a2skSetter} = JSON.parse(jsonString);
+		const {response: a2skSetter} = this.parsePJSON(pjson);
 
 		return a2skSetter.A2SK;
+	}
+
+	parsePJSON(pjson) {
+		return JSON.parse(pjson.replace(/^callback\(/, '').replace(/\);?$/, ''));
 	}
 
 	forget(forgetEmail=true, forgetPassword=true) {
@@ -130,14 +151,18 @@ class Launcher {
 		};
 	}
 
-	launchGame(gameId, launchArgs) {
+	async launchGame(gameId, launchArgs) {
 		try {
 			await this.loginFromSaved();
 		} catch(e) {
 			throw new ErrorLoginFailed();
 		}
 
-		opn(await this.createLaunchURI(gameId, launchArgs));
+		return await opn(await this.createLaunchURI(gameId, launchArgs));
+	}
+
+	get cookieText() {
+		return Object.keys(this.cookie).map(k => `${k}=${this.cookie[k]}`).join('; ') + ';';
 	}
 }
 
