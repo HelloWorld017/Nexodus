@@ -8,7 +8,8 @@
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="$emit('launch')">
+				<button class="LaunchMenu__action" @click="launch">
+					<!-- <i class="mdi mdi-loading mdi-spin" v-if="running"></i> -->
 					게임 시작
 				</button>
 			</div>
@@ -20,12 +21,13 @@
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="$emit('homepage')">
+				<button class="LaunchMenu__action" @click="homepage">
 					홈페이지
 				</button>
 			</div>
 		</div>
 
+		<!--
 		<div class="LaunchMenu__row">
 			<div class="LaunchMenu__icon">
 				<i class="mdi mdi-chart-line-variant"></i>
@@ -88,6 +90,7 @@
 				</div>
 			</div>
 		</div>
+		-->
 
 		<slot></slot>
 	</div>
@@ -188,6 +191,11 @@
 		},
 
 		computed: {
+			/*
+			running() {
+				return this.$store.state.running[this.game];
+			},
+
 			stats() {
 				return this.$store.state.statistics[this.game] || {
 					total: 0,
@@ -211,6 +219,19 @@
 
 			recent() {
 				return this.stats.recent || '없음';
+			}
+			*/
+		},
+
+		methods: {
+			launch() {
+				// if(this.running) return;
+
+				this.$emit('launch');
+			},
+
+			homepage() {
+				$nexodus.launcher.homepage(this.game);
 			}
 		}
 	};

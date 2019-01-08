@@ -3,8 +3,7 @@
 		<launch-menu
 			:src="require('./assets/KartriderTraced.svg')"
 			game="kartrider"
-			@launch="launch()"
-			@homepage="homepage()">
+			@launch="launch()">
 		</launch-menu>
 	</game>
 </template>
@@ -21,10 +20,6 @@
 		},
 
 		methods: {
-			homepage() {
-				$nexodus.launcher.homepage('kartrider');
-			},
-
 			launch() {
 				$nexodus.launcher.launch('kartrider', isRoyale);
 			}

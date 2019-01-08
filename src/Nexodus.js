@@ -6,6 +6,8 @@ const Launcher = require('./Launcher');
 const Statistics = require('./utils/Statistics');
 
 const {app, ipcMain, protocol} = require('electron');
+const { exec } = require('child_process');
+const opn = require('opn');
 const path = require('path');
 
 class Nexodus extends EventEmitter {
@@ -17,16 +19,18 @@ class Nexodus extends EventEmitter {
 		this.registerGames();
 		this.launcher = new Launcher(this);
 
+		/*
 		this.runningStats = Object.keys(this.games).reduce((prev, curr) => {
 			prev[curr] = {
 				running: false,
-				elapsed: 0
+				started: 0
 			};
 
 			return prev;
 		}, {});
 
 		this.stats = {};
+		*/
 	}
 
 	async startLauncher() {
@@ -41,6 +45,8 @@ class Nexodus extends EventEmitter {
 
 	async init() {
 		await this.launcher.init();
+
+		/*
 		if(!this.launcher.store.state.stats) this.launcher.store.state.stats = {};
 
 		this.stats = Object.keys(this.games).reduce((prev, curr) => {
@@ -69,6 +75,7 @@ class Nexodus extends EventEmitter {
 				this.stats[gameName].updateStatistics();
 			});
 		}, 5000);
+		*/
 
 		this.registerProtocol();
 
@@ -105,9 +112,12 @@ class Nexodus extends EventEmitter {
 			});
 		});
 
-		ipcMain.on('logout', () => {
-			this.launcher.forget(false);
-			this.launcher.store.requestSave();
+		ipcMain.on('logout', ({sender}) => {
+			const win = BrowserWindow.fromWebContents(sender);
+			win.close();
+
+			this.launcher.logout();
+			this.showLogin();
 		});
 
 		ipcMain.on('openLauncher', ({sender}) => {
@@ -135,7 +145,6 @@ class Nexodus extends EventEmitter {
 
 		ipcMain.on('homepage', (event, game) => {
 			if(!this.games[game]) return;
-
 			opn(this.games[game].gameWeb);
 		});
 
@@ -145,7 +154,11 @@ class Nexodus extends EventEmitter {
 
 			try {
 				await this.launcher.launchGame(game, args);
+
+				/*
 				this.runningStats[game].running = true;
+				this.runningStats[game].started = Date.now();
+				*/
 			} catch(err) {
 				if(err.nexodusName === 'LoginFailed') {
 					//TODO send re-login form
@@ -156,14 +169,19 @@ class Nexodus extends EventEmitter {
 		});
 
 		ipcMain.on('getInfo', ({sender}) => {
-			sender.send('getInfo', {
+			const info = {
 				config: this.launcher.store.state.config,
-				statistics: Object.keys(this.stats).reduce((prev, k) => {
-					prev[k] = this.stats[k].exportData();
-					return prev;
-				}, {}),
 				username: this.launcher.username
-			});
+			};
+
+			/*
+			info.statistics = Object.keys(this.stats).reduce((prev, k) => {
+				prev[k] = this.stats[k].exportData();
+				return prev;
+			}, {});
+			*/
+
+			sender.send('getInfo', info);
 		});
 
 		this.on('security.saveEmail', value => {
@@ -176,7 +194,7 @@ class Nexodus extends EventEmitter {
 	}
 
 	registerGame(game) {
-		this.games[game.name] = game;
+		this.games[game.id] = game;
 	}
 
 	registerGames() {

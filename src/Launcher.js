@@ -70,6 +70,8 @@ class Launcher {
 	}
 
 	async loginFromSaved() {
+		if(!this.id || !this.passwordHash) return;
+
 		const cookie = await this.nexonLogin.login(this.id, this.passwordHash, true);
 
 		Object.keys(cookie).forEach(key => {
@@ -111,8 +113,24 @@ class Launcher {
 		return JSON.parse(pjson.replace(/^callback\(/, '').replace(/\);?$/, ''));
 	}
 
+	logout() {
+		this.id = null;
+		this.username = null;
+		this.passwordHash = null;
+		this.loggedIn = false;
+		this.launcher.forget(false);
+	}
+
 	forget(forgetEmail=true, forgetPassword=true) {
-		//TODO
+		if(forgetEmail) {
+			this.store.state.id = null;
+		}
+
+		if(forgetPassword) {
+			this.store.state.password = null;
+		}
+
+		this.launcher.store.requestSave();
 	}
 
 	async createLaunchURI(gameId, launchArgs) {
@@ -126,8 +144,8 @@ class Launcher {
 
 		const configuration = Object.assign(
 			{},
-			this.getDefaultLaunchConfiguration(this.game[gameId]),
-			this.games[gameId].getStartArgs(launchArgs, this)
+			this.getDefaultLaunchConfiguration(this.games[gameId]),
+			await this.games[gameId].getStartArgs(this, launchArgs)
 		);
 
 		return `ngm://launch/ ${this.generateArgString(configuration)}`;

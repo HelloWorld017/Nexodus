@@ -30,15 +30,15 @@ class Launcher {
 	}
 
 	logout() {
-
+		this.electron.ipcRenderer.send('logout');
 	}
 
-	launch(gameName, options) {
-
+	launch(game, args) {
+		this.electron.ipcRenderer.send('launch', {game, args});
 	}
 
 	homepage(gameName) {
-
+		this.electron.ipcRenderer.send('homepage', gameName);
 	}
 }
 

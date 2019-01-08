@@ -1,3 +1,5 @@
+const querystring = require('querystring');
+
 const CSON = require('cson');
 const {ErrorServer} = require('../utils/Errors');
 
@@ -25,10 +27,22 @@ const Battlerite = {
 		const startObject = CSON.parse(objMatch[1]);
 
 		return {
-			game: token.gameCode + ':0',
-			arg: token.param
+			game: startObject.gameCode + ':0',
+			arg: startObject.param
 		};
 	},
+
+	/*
+	getRegistry(isRoyale) {
+		if(isRoyale) {
+			return 'Battlerite Royale'
+		}
+	},
+
+	get gameIds() {
+		return [106579, 106578, 106576, 106572, 106571];
+	},
+	*/
 
 	get id() {
 		return 'battlerite';
