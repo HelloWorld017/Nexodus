@@ -9,7 +9,6 @@
 
 			<div class="LaunchMenu__actions">
 				<button class="LaunchMenu__action" @click="launch">
-					<!-- <i class="mdi mdi-loading mdi-spin" v-if="running"></i> -->
 					게임 시작
 				</button>
 			</div>
@@ -26,71 +25,6 @@
 				</button>
 			</div>
 		</div>
-
-		<!--
-		<div class="LaunchMenu__row">
-			<div class="LaunchMenu__icon">
-				<i class="mdi mdi-chart-line-variant"></i>
-			</div>
-
-			<div class="LaunchMenu__label">
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__key">
-						총 플레이 시간
-					</div>
-
-					<div class="LaunchMenu__label__key">
-						최근 플레이 날짜
-					</div>
-				</div>
-
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__value">
-						{{stats.total}}
-					</div>
-
-					<div class="LaunchMenu__label__value">
-						{{recent}}
-					</div>
-				</div>
-			</div>
-
-			<div class="LaunchMenu__label">
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__key">
-						연간 하루 평균 플레이 시간
-					</div>
-
-					<div class="LaunchMenu__label__key">
-						연간 주 평균 플레이 시간
-					</div>
-				</div>
-
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__value">
-						{{stats.average}}
-					</div>
-
-					<div class="LaunchMenu__label__value">
-						{{stats.avgWeek}}
-					</div>
-				</div>
-			</div>
-
-			<div class="LaunchMenu__label">
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__key">
-						최근 일주일 간 플레이 시간
-					</div>
-				</div>
-				<div class="LaunchMenu__stacked">
-					<div class="LaunchMenu__label__value">
-						{{stats.week}}
-					</div>
-				</div>
-			</div>
-		</div>
-		-->
 
 		<slot></slot>
 	</div>
@@ -190,43 +124,8 @@
 			src: String
 		},
 
-		computed: {
-			/*
-			running() {
-				return this.$store.state.running[this.game];
-			},
-
-			stats() {
-				return this.$store.state.statistics[this.game] || {
-					total: 0,
-					recent: null,
-					weeks: [0],
-					currentWeek: 0
-				};
-			},
-
-			week() {
-				return this.stats.currentWeek;
-			},
-
-			avgWeek() {
-				return this.stats.weeks.reduce((prev, curr) => prev + curr, 0) / this.stats.weeks.length;
-			},
-
-			average() {
-				return this.avgWeek / 7;
-			},
-
-			recent() {
-				return this.stats.recent || '없음';
-			}
-			*/
-		},
-
 		methods: {
 			launch() {
-				// if(this.running) return;
-
 				this.$emit('launch');
 			},
 

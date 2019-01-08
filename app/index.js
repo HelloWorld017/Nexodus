@@ -60,11 +60,6 @@ const Nexodus = {
 					]
 				},
 
-				/*
-				running: {},
-				statistics: {},
-				*/
-
 				username: null
 			},
 
@@ -77,25 +72,13 @@ const Nexodus = {
 					Vue.set(state.config[section], config, value);
 				},
 
-				/*
-				statisticsSet(state, stats) {
-					state.statistics = stats;
-				},
-				*/
-
 				activatedGamesSet(state, activated) {
 					state.config.activatedGames = activated;
 				},
 
 				usernameSet(state, username) {
 					state.username = username;
-				},
-
-				/*
-				runningSet(state, {game, running}) {
-					state.running[game] = running;
 				}
-				*/
 			},
 
 			plugins
@@ -103,9 +86,6 @@ const Nexodus = {
 
 		let mode = 'hash';
 		if(this.environment === 'electron-renderer') {
-			// const {config, statistics, username} = await this.launcher.retrieveSettings();
-			// this.store.commit('statisticsSet', statistics);
-
 			const {config, username} = await this.launcher.retrieveSettings();
 			this.store.commit('configSet', config);
 			this.store.commit('usernameSet', username);

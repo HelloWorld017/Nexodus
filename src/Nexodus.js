@@ -3,7 +3,6 @@ const Battlerite = require('./games/Battlerite');
 const EventEmitter = require('events');
 const {ErrorUnknown} = require('./utils/Errors');
 const Launcher = require('./Launcher');
-const Statistics = require('./utils/Statistics');
 
 const {app, ipcMain, protocol} = require('electron');
 const { exec } = require('child_process');
@@ -18,19 +17,6 @@ class Nexodus extends EventEmitter {
 
 		this.registerGames();
 		this.launcher = new Launcher(this);
-
-		/*
-		this.runningStats = Object.keys(this.games).reduce((prev, curr) => {
-			prev[curr] = {
-				running: false,
-				started: 0
-			};
-
-			return prev;
-		}, {});
-
-		this.stats = {};
-		*/
 	}
 
 	async startLauncher() {
@@ -45,37 +31,6 @@ class Nexodus extends EventEmitter {
 
 	async init() {
 		await this.launcher.init();
-
-		/*
-		if(!this.launcher.store.state.stats) this.launcher.store.state.stats = {};
-
-		this.stats = Object.keys(this.games).reduce((prev, curr) => {
-			const data = this.launcher.store.state.stats[curr];
-			let stat;
-
-			if(data) {
-				stat = Statistics.importData(curr, data);
-			} else {
-				stat = new Statistics(curr);
-			}
-
-			stat.on('updateStatistics', () => {
-				this.launcher.store.state.stats[curr] = stat.exportData();
-				this.launcher.store.requestSave();
-
-				//TODO send stats to renderer
-			});
-
-			prev[curr] = stat;
-			return prev;
-		}, {});
-
-		setInterval(() => {
-			Object.keys(this.stats).forEach(gameName => {
-				this.stats[gameName].updateStatistics();
-			});
-		}, 5000);
-		*/
 
 		this.registerProtocol();
 
@@ -154,11 +109,6 @@ class Nexodus extends EventEmitter {
 
 			try {
 				await this.launcher.launchGame(game, args);
-
-				/*
-				this.runningStats[game].running = true;
-				this.runningStats[game].started = Date.now();
-				*/
 			} catch(err) {
 				if(err.nexodusName === 'LoginFailed') {
 					//TODO send re-login form
@@ -173,13 +123,6 @@ class Nexodus extends EventEmitter {
 				config: this.launcher.store.state.config,
 				username: this.launcher.username
 			};
-
-			/*
-			info.statistics = Object.keys(this.stats).reduce((prev, k) => {
-				prev[k] = this.stats[k].exportData();
-				return prev;
-			}, {});
-			*/
 
 			sender.send('getInfo', info);
 		});

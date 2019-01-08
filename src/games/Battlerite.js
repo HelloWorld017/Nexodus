@@ -32,18 +32,6 @@ const Battlerite = {
 		};
 	},
 
-	/*
-	getRegistry(isRoyale) {
-		if(isRoyale) {
-			return 'Battlerite Royale'
-		}
-	},
-
-	get gameIds() {
-		return [106579, 106578, 106576, 106572, 106571];
-	},
-	*/
-
 	get id() {
 		return 'battlerite';
 	},
