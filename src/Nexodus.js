@@ -1,11 +1,14 @@
-const {BrowserWindow} = require('electron');
+const {BrowserWindow, Menu, Tray} = require('electron');
 const Battlerite = require('./games/Battlerite');
 const EventEmitter = require('events');
 const {ErrorUnknown} = require('./utils/Errors');
 const Launcher = require('./Launcher');
+const ProcessMonitor = require('./utils/ProcessMonitor');
+const Statistics = require('./utils/Statistics');
 
-const {app, ipcMain, protocol} = require('electron');
-const { exec } = require('child_process');
+const {app, dialog, ipcMain, protocol} = require('electron');
+const {exists} = require('./utils/utils');
+const isDev = require('electron-is-dev');
 const opn = require('opn');
 const path = require('path');
 
@@ -17,25 +20,84 @@ class Nexodus extends EventEmitter {
 
 		this.registerGames();
 		this.launcher = new Launcher(this);
+
+		this.monitor = new ProcessMonitor();
+		this.stats = {};
 	}
 
 	async startLauncher() {
 		await this.init();
 
+		const args = process.argv.slice(isDev ? 2 : 1);
+		const general = this.launcher.store.state.config.general;
+
+		if(general.enableTray) {
+			if(general.runAsMinimized && args.includes('--auto-start')) return;
+
+		}
+
 		if(!this.launcher.loggedIn) {
-			this.showLogin();
+			await this.showLogin();
 		} else {
-			this.showLauncher();
+			await this.showLauncher();
 		}
 	}
 
 	async init() {
 		await this.launcher.init();
+		if(!this.launcher.store.state.stats) this.launcher.store.state.stats = {};
+
+		this.stats = Object.keys(this.games).reduce((prev, curr) => {
+			const data = this.launcher.store.state.stats[curr];
+			let stat;
+
+			if(data) {
+				stat = Statistics.importData(curr, data);
+			} else {
+				stat = new Statistics(curr);
+			}
+
+			stat.on('updateStatistics', () => {
+				const exportData = stat.exportData();
+				this.log(`Status updated for ${curr} : ${exportData}`);
+
+				this.launcher.store.state.stats[curr] = exportData;
+				this.launcher.store.requestSave();
+
+				if(this.mainWindow) {
+					this.mainWindow.webContents.send('statistics', {
+						game: curr,
+						data: exportData
+					});
+				}
+			});
+
+			prev[curr] = stat;
+			return prev;
+		}, {});
+
+		this.monitor.on('start', ({gameName}) => {
+			this.log(`Started ${gameName}`);
+			this.stats[gameName].startedGame();
+		});
+
+		this.monitor.on('end', ({gameName, runningTime}) => {
+			this.log(`Played ${gameName} for ${runningTime}`);
+			this.stats[gameName].playedTime(Math.floor(runningTime / (60 * 1000)));
+		});
+
+		setInterval(() => {
+			Object.keys(this.stats).forEach(gameName => {
+				this.stats[gameName].updateStatistics();
+			});
+
+			this.monitor.checkUpdate();
+		}, 5000);
 
 		this.registerProtocol();
 
 		app.on('window-all-closed', () => {
-			//TODO
+			this.launcher.store.state.config.general
 		});
 
 		ipcMain.on('login', async ({sender}, {id, password}) => {
@@ -105,26 +167,33 @@ class Nexodus extends EventEmitter {
 
 		ipcMain.on('launch', async (event, {game, args}) => {
 			if(!this.games[game]) return;
-			if(this.runningStats[game].running) return;
+			if(this.monitor.isRunning(game)) return;
 
 			try {
 				await this.launcher.launchGame(game, args);
+				this.monitor.monitorGame(this.games[game], args);
 			} catch(err) {
+				this.logError(err);
+
 				if(err.nexodusName === 'LoginFailed') {
 					//TODO send re-login form
 				}
 			}
-			//TODO do afterlaunch
-			//TODO track statistics
 		});
 
 		ipcMain.on('getInfo', ({sender}) => {
-			const info = {
+			sender.send('getInfo', {
 				config: this.launcher.store.state.config,
+				statistics: Object.keys(this.stats).reduce((prev, k) => {
+					prev[k] = this.stats[k].exportData();
+					return prev;
+				}, {}),
 				username: this.launcher.username
-			};
+			});
+		});
 
-			sender.send('getInfo', info);
+		this.on('exitPrompt', () => {
+			this.beforeExit(true);
 		});
 
 		this.on('security.saveEmail', value => {
@@ -133,6 +202,32 @@ class Nexodus extends EventEmitter {
 
 		this.on('security.saveLogin', value => {
 			if(!value) this.launcher.forget(false);
+		});
+
+		this.on('general.runOnStartup', async value => {
+			try {
+				const appFolder = path.dirname(process.execPath);
+				const updateExe = path.resolve(appFolder, '..', 'Update.exe');
+				const exeName = path.basename(process.execPath);
+
+				if(await exists(updateExe)) {
+					app.setLoginItemSettings({
+						openAtLogin: value,
+						path: updateExe,
+						args: [
+							'--processStart', `"${exeName}"`,
+							'--process-start-args', `"--auto-start"`
+						]
+					});
+				} else {
+					app.setLoginItemSettings({
+						openAtLogin: value,
+						args: ['--auto-start']
+					});
+				}
+			} catch() {
+
+			}
 		});
 	}
 
@@ -211,7 +306,10 @@ class Nexodus extends EventEmitter {
 				minHeight: 360,
 				show: false,
 				frame: false,
-				title: "Nexodus"
+				title: "Nexodus",
+				webPreferences: {
+					nodeIntegration: true
+				}
 			});
 
 			this.mainWindow.setMenu(null);
@@ -226,17 +324,56 @@ class Nexodus extends EventEmitter {
 			});
 
 			this.mainWindow.loadURL('nexodus://caydesix/');
+			this.mainWindow.openDevTools();
 		});
+	}
+
+	//TODO
+	log(text) {
+		console.log(text);
 	}
 
 	logError(err) {
 		console.error(err);
-		//TODO
 	}
 
-	beforeExit() {
-		this.launcher.store.save();
-		//TODO call this function before exit
+	showPrompt(title, desc, callbackEvent) {
+		dialog.showMessageBox({
+			type: 'none',
+			buttons: ['예', '아니오'],
+			title,
+			message: desc
+		}, resp => {
+			const response = !resp;
+
+			this.emit(callbackEvent, response);
+		});
+	}
+
+	async beforeExit(force=false) {
+		const runningGames = Object.keys(this.games).filter(game => this.monitor.isRunning(game));
+
+		if(!force) {
+			if(runningGames.length > 0) {
+				this.showPrompt(
+					'종료하시겠습니까?',
+					'아직 실행중인 게임이 있습니다. 종료하시겠습니까?\n종료하실 경우 현재 플레이는 통계에 반영되지 않습니다.',
+					'exitPrompt'
+				);
+				return;
+			}
+		}
+
+		runningGames.forEach(k => {
+			this.monitor.stopGame(k);
+		});
+
+		await this.launcher.store.save();
+
+		if(this.mainWindow) this.mainWindow.close();
+		if(this.loginWindow) this.loginWindow.close();
+
+		app.quit();
 	}
 }
 

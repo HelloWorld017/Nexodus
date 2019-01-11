@@ -44,9 +44,6 @@ const Nexodus = {
 
 		if(this.environment === 'electron-renderer') {
 			this.electron = require('electron');
-			this.handle = new WindowHandle(this.electron);
-			this.launcher = new Launcher(this.electron);
-
 			plugins.push(trackConfig(this.electron));
 		}
 
@@ -60,6 +57,8 @@ const Nexodus = {
 					]
 				},
 
+				statistics: {},
+
 				username: null
 			},
 
@@ -70,6 +69,14 @@ const Nexodus = {
 
 				configUpdate(state, {section, config, value}) {
 					Vue.set(state.config[section], config, value);
+				},
+
+				statisticsSet(state, stats) {
+					state.statistics = stats;
+				},
+
+				staticsGameSet(state, {game, data}) {
+					Vue.set(state.statistics, game, data);
 				},
 
 				activatedGamesSet(state, activated) {
@@ -86,8 +93,12 @@ const Nexodus = {
 
 		let mode = 'hash';
 		if(this.environment === 'electron-renderer') {
-			const {config, username} = await this.launcher.retrieveSettings();
+			this.handle = new WindowHandle(this.electron);
+			this.launcher = new Launcher(this.electron, this.store);
+
+			const {config, statistics, username} = await this.launcher.retrieveSettings();
 			this.store.commit('configSet', config);
+			this.store.commit('statisticsSet', statistics);
 			this.store.commit('usernameSet', username);
 
 			mode = 'history';

@@ -45,8 +45,11 @@
 		box-sizing: border-box;
 		padding: 0;
 		padding-right: 18px;
+		position: relative;
+		z-index: 1;
 
 		background: #1E272E;
+		box-shadow: 0 0 4px 0 rgba(0, 0, 0, .4);
 		-webkit-app-region: drag;
 		user-select: none;
 

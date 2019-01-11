@@ -32,6 +32,14 @@ const Battlerite = {
 		};
 	},
 
+	getExecutable(isRoyale) {
+		if(isRoyale) {
+			return 'BattleriteRoyale.exe'
+		}
+
+		return 'Battlerite.exe';
+	},
+
 	get id() {
 		return 'battlerite';
 	},

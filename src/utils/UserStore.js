@@ -32,6 +32,7 @@ class UserStore {
 		this.derivedHash = null;
 		this.storeInitiated = false;
 		this.state = {};
+		this.encryptTarget = ['id', 'password'];
 
 		this.launcher = launcher;
 		this.lastSaveRequest = Date.now();
@@ -73,19 +74,32 @@ class UserStore {
 		if(!await exists(this.configPath))
 			return {};
 
-		const {encrypted, iv} = JSON.parse(await promisify(fs.readFile)(this.configPath, 'utf8'));
+		const {encStore, store} = JSON.parse(await promisify(fs.readFile)(this.configPath, 'utf8'));
+		const {encrypted, iv} = encStore;
 		const decipher = crypto.createDecipheriv('aes-256-cbc', this.derivedHash, Buffer.from(iv, 'hex'));
 
 		let decrypted = decipher.update(encrypted, 'base64', 'utf8');
 		decrypted += decipher.final('utf8');
 
-		return JSON.parse(decrypted);
+		return Object.assign({}, JSON.parse(decrypted), store);
 	}
 
 	async save() {
 		this.lastSaveRequest = Date.now();
-		
-		const decrypted = JSON.stringify(this.state);
+
+		const encStore = {};
+		const store = {};
+
+		Object.keys(this.state).forEach(key => {
+			if(this.encryptTarget.includes(key)) {
+				encStore[key] = this.state[key];
+				return;
+			}
+
+			store[key] = this.state[key];
+		});
+
+		const decrypted = JSON.stringify(encStore);
 		const iv = await promisify(crypto.randomBytes)(16);
 		const cipher = crypto.createCipheriv('aes-256-cbc', this.derivedHash, iv);
 
@@ -95,8 +109,13 @@ class UserStore {
 		const ivText = iv.toString('hex');
 
 		await promisify(fs.writeFile)(this.configPath, JSON.stringify({
-			encrypted, iv: ivText
-		}));
+			warning: "주의! 이 파일을 다른 사람에게 공유하지 마세요. 비밀번호 등이 포함된 파일입니다.",
+			encStore: {
+				encrypted, iv: ivText
+			},
+
+			store
+		}, null, '\t'));
 	}
 
 	requestSave() {

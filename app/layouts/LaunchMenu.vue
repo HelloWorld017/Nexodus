@@ -4,11 +4,76 @@
 
 		<div class="LaunchMenu__row">
 			<div class="LaunchMenu__icon">
+				<i class="mdi mdi-chart-line-variant"></i>
+			</div>
+
+			<div class="LaunchMenu__list">
+				<div class="LaunchMenu__label">
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__key">
+							총 플레이 시간
+						</div>
+
+						<div class="LaunchMenu__label__key">
+							최근 플레이 날짜
+						</div>
+					</div>
+
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__value">
+							{{total}}
+						</div>
+
+						<div class="LaunchMenu__label__value">
+							{{recent}}
+						</div>
+					</div>
+				</div>
+
+				<div class="LaunchMenu__label">
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__key">
+							하루 평균 플레이 시간
+						</div>
+
+						<div class="LaunchMenu__label__key">
+							주 평균 플레이 시간
+						</div>
+					</div>
+
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__value">
+							{{average}}
+						</div>
+
+						<div class="LaunchMenu__label__value">
+							{{avgWeek}}
+						</div>
+					</div>
+				</div>
+
+				<div class="LaunchMenu__label">
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__key">
+							최근 일주일 간 플레이 시간
+						</div>
+					</div>
+					<div class="LaunchMenu__stacked">
+						<div class="LaunchMenu__label__value">
+							{{week}}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="LaunchMenu__row">
+			<div class="LaunchMenu__icon">
 				<i class="mdi mdi-play"></i>
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="launch">
+				<button class="LaunchMenu__action" @click="$emit('launch')">
 					게임 시작
 				</button>
 			</div>
@@ -20,7 +85,7 @@
 			</div>
 
 			<div class="LaunchMenu__actions">
-				<button class="LaunchMenu__action" @click="homepage">
+				<button class="LaunchMenu__action" @click="$emit('homepage')">
 					홈페이지
 				</button>
 			</div>
@@ -45,7 +110,7 @@
 
 		&__row {
 			display: flex;
-			align-items: stretch;
+			align-items: center;
 			margin-top: 10px;
 			padding: 10px 30px;
 
@@ -60,6 +125,10 @@
 			margin-right: 20px;
 
 			font-size: 2.5rem;
+		}
+
+		&__list {
+			display: flex;
 		}
 
 		&__actions {
@@ -114,6 +183,9 @@
 </style>
 
 <script>
+	import moment from "moment";
+	moment.locale('ko');
+
 	export default {
 		props: {
 			game: {
@@ -124,6 +196,57 @@
 			src: String
 		},
 
+		computed: {
+			running() {
+				return this.$store.state.running[this.game];
+			},
+
+			stats() {
+				return this.$store.state.statistics[this.game] || {
+					total: 0,
+					recent: null,
+					elapsedDate: 1,
+					currentWeek: 0
+				};
+			},
+
+			total() {
+				return this.pretty(this.stats.total);
+			},
+
+			week() {
+				return this.pretty(this.stats.currentWeek);
+			},
+
+			avgWeek() {
+				return this.pretty(this.stats.total / (moment.duration(this.stats.elapsedDate, 'days').weeks() + 1));
+			},
+
+			average() {
+				return this.pretty(this.stats.total / this.stats.elapsedDate);
+			},
+
+			recent() {
+				if(!this.stats.recent) return '없음';
+				const date = moment(this.stats.recent);
+				const today = moment();
+
+				if(date.week() === today.week()) {
+					if(date.date() === today.date()) {
+						return '오늘';
+					}
+
+					if(date.dayOfYear() + 1 === today.dayOfYear()) {
+						return '어제';
+					}
+
+					return date.format('dddd');
+				}
+
+				return date.format('YYYY-MM-DD');
+			}
+		},
+
 		methods: {
 			launch() {
 				this.$emit('launch');
@@ -131,6 +254,14 @@
 
 			homepage() {
 				$nexodus.launcher.homepage(this.game);
+			},
+
+			pretty(hrs) {
+				if(hrs < 1) {
+					return Math.round(hrs * 60) + '분';
+				}
+
+				return Math.round(hrs) + '시간';
 			}
 		}
 	};

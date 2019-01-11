@@ -4,7 +4,8 @@
 			<launch-menu v-if="!launching"
 				:src="require('./assets/Battlerite.png')"
 				game="battlerite"
-				@launch="launching = true">
+				@launch="launching = true"
+				@homepage="homepage()">
 			</launch-menu>
 
 			<div class="Battlerite__launch" v-if="launching" v-click-outside="hideLaunch">
@@ -127,9 +128,12 @@
 				this.launching = false;
 			},
 
+			homepage() {
+				$nexodus.launcher.homepage('battlerite');
+			},
+
 			launch(isRoyale) {
 				$nexodus.launcher.launch('battlerite', isRoyale);
-				this.launching = false;
 			}
 		},
 

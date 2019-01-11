@@ -1,6 +1,11 @@
 class Launcher {
-	constructor(electron) {
+	constructor(electron, store) {
 		this.electron = electron;
+		this.store = store;
+
+		this.electron.ipcRenderer.on('statistics', (evt, stats) => {
+			this.store.commit('statisticsGameSet', stats);
+		});
 	}
 
 	retrieveSettings() {

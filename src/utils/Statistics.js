@@ -1,4 +1,5 @@
 const moment = require('moment');
+moment.locale('ko');
 
 const EventEmitter = require('events');
 
@@ -6,18 +7,29 @@ class Statistics extends EventEmitter {
 	constructor(game) {
 		super();
 		this.game = game;
+		this.first = null;
 		this.recent = null;
-		this.weeks = [];
 		this.total = 0;
 		this.currentWeek = 0;
 		this.lastUpdated = Date.now();
+		this.elapsedDate = 1;
 	}
 
 	playedTime(mins) {
 		const hrs = mins / 60;
 
-		this.currentWeek += htd;
-		this.total += htd;
+		this.currentWeek += hrs;
+		this.total += hrs;
+
+		this.emit('updateStatistics');
+	}
+
+	startedGame() {
+		this.recent = Date.now();
+		if(!this.first) this.first = this.recent;
+
+		this.elapsedDate = 1;
+		this.emit('updateStatistics');
 	}
 
 	updateStatistics() {
@@ -36,15 +48,16 @@ class Statistics extends EventEmitter {
 		}
 		elapsedWeek += currentWeek - lastWeek;
 
-		let updated = false;
 		if(elapsedWeek > 0) {
-			this.weeks.push(this.currentWeek);
 			this.currentWeek = 0;
-			updated = true;
-			elapsedWeek -= 1;
 		}
 
-		this.weeks = this.weeks.concat([...Array(elapsedWeek)].map(v => 0));
+		let updated = false;
+		if(current.diff(lastUpdated, 'day') > 0) {
+			this.elapsedDate = current.diff(moment(this.first), 'day') + 1;
+			updated = true;
+		}
+
 		this.lastUpdated = current.valueOf();
 
 		if(updated) {
@@ -55,8 +68,8 @@ class Statistics extends EventEmitter {
 	static importData(game, data) {
 		const stats = new Statistics(game);
 
+		stats.first = data.first;
 		stats.recent = data.recent;
-		stats.weeks = data.weeks;
 		stats.total = data.total;
 		stats.currentWeek = data.currentWeek;
 		stats.lastUpdated = data.lastUpdated;
@@ -67,8 +80,9 @@ class Statistics extends EventEmitter {
 
 	exportData() {
 		return {
+			first: this.first,
 			recent: this.recent,
-			weeks: this.weeks,
+			elapsedDate: this.elapsedDate,
 			total: this.total,
 			currentWeek: this.currentWeek,
 			lastUpdated: this.lastUpdated

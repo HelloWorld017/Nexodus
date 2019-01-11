@@ -130,7 +130,7 @@ class Launcher {
 			this.store.state.password = null;
 		}
 
-		this.launcher.store.requestSave();
+		this.store.requestSave();
 	}
 
 	async createLaunchURI(gameId, launchArgs) {
@@ -173,7 +173,7 @@ class Launcher {
 		try {
 			await this.loginFromSaved();
 		} catch(e) {
-			throw new ErrorLoginFailed();
+			throw new ErrorLoginFailed(e.message);
 		}
 
 		return await opn(await this.createLaunchURI(gameId, launchArgs));

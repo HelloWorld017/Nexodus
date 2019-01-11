@@ -131,6 +131,7 @@ module.exports = {
             })()),
             'NEXODUS_VERSION': JSON.stringify(package.version)
         }),
+        new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /ko/),
         new MiniCssExtractPlugin({filename: '[name].bundle.css'}),
         new VueLoaderPlugin(),
         new WebpackBarPlugin({profile: true})

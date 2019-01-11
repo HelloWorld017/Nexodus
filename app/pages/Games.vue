@@ -35,7 +35,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 92px;
-		margin-top: -48px;
+		// margin-top: -48px;
 
 		&__titlebar {
 			height: 48px;
@@ -59,6 +59,7 @@
 			justify-content: center;
 
 			text-decoration: none;
+			transition: all .4s ease;
 
 			&.router-link-exact-active {
 				background: #232E37;

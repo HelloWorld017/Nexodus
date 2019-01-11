@@ -20,7 +20,7 @@
 						<div class="Config__button">
 							<nx-checkbox :value="config[sectionKey][configKey]"
 								:input-id="`${sectionKey}.${configKey}`"
-								:disabled="conf.requirements ? !config[sectionKey][conf.requirements] : false"
+								:disabled="calcRequirement(conf.requirements, sectionKey)"
 								@change="updateConfig(sectionKey, configKey, $event)"
 								v-if="conf.type === 'boolean'">
 							</nx-checkbox>
@@ -30,6 +30,7 @@
 					<div class="Config__buttonOuter">
 						<nx-select :value="config[sectionKey][configKey]"
 							:options="conf.enums"
+							:disabled="calcRequirement(conf.requirements, sectionKey)"
 							@change="updateConfig(sectionKey, configKey, $event)"
 							v-if="conf.type === 'enum'">
 						</nx-select>
@@ -137,6 +138,12 @@
 
 			updateConfig(section, config, value) {
 				this.$store.commit('configUpdate', {section, config, value});
+			},
+
+			calcRequirement(reqs, sectionKey) {
+				if(!reqs) return false;
+
+				return !reqs.every(r => this.config[sectionKey][r]);
 			}
 		},
 
