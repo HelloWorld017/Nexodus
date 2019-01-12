@@ -32,12 +32,41 @@ class Nexodus extends EventEmitter {
 		const general = this.launcher.store.state.config.general;
 
 		if(general.enableTray) {
-			if(general.runAsMinimized && args.includes('--auto-start')) return;
+			this.tray = new Tray(path.resolve(__dirname, '..', 'app', 'images', 'Nexodus.ico'));
+			this.trayMenu = Menu.buildFromTemplate([
+				...this.getTrayGames(),
 
+				{ type: 'separator' },
+
+				{
+					label: '열기',
+					click() {
+						this.show();
+					}
+				},
+
+				{
+					label: '종료',
+					click() {
+						this.beforeExit();
+					}
+				}
+			]);
+			this.tray.setToolTip('Nexodus');
+			this.tray.setContextMenu(this.trayMenu);
+
+			if(general.runAsMinimized && args.includes('--auto-start')) return;
 		}
 
+		await this.show();
+	}
+
+	async show() {
 		if(!this.launcher.loggedIn) {
 			await this.showLogin();
+			this.on('login', () => {
+				this.showLauncher();
+			});
 		} else {
 			await this.showLauncher();
 		}
@@ -127,6 +156,10 @@ class Nexodus extends EventEmitter {
 				result: true,
 				username: this.launcher.username
 			});
+
+			BrowserWindow.fromWebContents(sender).close();
+
+			this.emit('login');
 		});
 
 		ipcMain.on('logout', ({sender}) => {
@@ -135,13 +168,6 @@ class Nexodus extends EventEmitter {
 
 			this.launcher.logout();
 			this.showLogin();
-		});
-
-		ipcMain.on('openLauncher', ({sender}) => {
-			const win = BrowserWindow.fromWebContents(sender);
-			win.close();
-
-			this.showLauncher();
 		});
 
 		ipcMain.on('config', async (event, {section, config, value}) => {
@@ -165,20 +191,8 @@ class Nexodus extends EventEmitter {
 			opn(this.games[game].gameWeb);
 		});
 
-		ipcMain.on('launch', async (event, {game, args}) => {
-			if(!this.games[game]) return;
-			if(this.monitor.isRunning(game)) return;
-
-			try {
-				await this.launcher.launchGame(game, args);
-				this.monitor.monitorGame(this.games[game], args);
-			} catch(err) {
-				this.logError(err);
-
-				if(err.nexodusName === 'LoginFailed') {
-					//TODO send re-login form
-				}
-			}
+		ipcMain.on('launch', (event, launchObj) => {
+			this.launch(launchObj);
 		});
 
 		ipcMain.on('getInfo', ({sender}) => {
@@ -225,10 +239,29 @@ class Nexodus extends EventEmitter {
 						args: ['--auto-start']
 					});
 				}
-			} catch() {
-
-			}
+			} catch(e) {}
 		});
+	}
+
+	async launch({game, args}) {
+		if(!this.games[game]) return;
+		if(this.monitor.isRunning(game)) return;
+
+		try {
+			await this.launcher.launchGame(game, args);
+			this.monitor.monitorGame(this.games[game], args);
+		} catch(err) {
+			this.logError(err);
+
+			if(err.nexodusName === 'LoginFailed') {
+				this.removeAllListeners('login');
+				await this.showLogin();
+
+				this.on('login', () => {
+					this.launch({game, args});
+				});
+			}
+		}
 	}
 
 	registerGame(game) {
@@ -328,8 +361,59 @@ class Nexodus extends EventEmitter {
 		});
 	}
 
-	//TODO
+	getTrayGames() {
+		return Object.keys(this.stats)
+			.map(gameName => this.stats[gameName])
+			.sort((v1, v2) => {
+				if(!v1.recent && v2.recent) return 1;
+				if(!v2.recent && v1.recent) return -1;
+				if(!v1.recent && !v2.recent) return 0;
+
+				return v2.recent - v1.recent;
+			})
+			.map(({game: gameName}) => {
+				const game = this.games[gameName];
+
+				if(game.fastStartEnabled) {
+					if(game.getNames) {
+						return {
+							label: game.getName(),
+							submenu: game.getNames().map(({name, launchArgs}) => {
+								return {
+									label: name,
+									click() {
+										this.launch({
+											game: game.id,
+											args: launchArgs
+										});
+									}
+								};
+							})
+						};
+					}
+
+					return {
+						label: game.getName(),
+						click() {
+							this.launch({
+								game: game.id
+							});
+						}
+					};
+				}
+
+				return {
+					label: game.getName(),
+					async click() {
+						await this.showLauncher();
+						this.mainWindow.webContents.send('showGame', game.id);
+					}
+				};
+			});
+	}
+
 	log(text) {
+		//TODO
 		console.log(text);
 	}
 

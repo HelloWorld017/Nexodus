@@ -30,10 +30,6 @@ class Launcher {
 		});
 	}
 
-	openLauncher() {
-		this.electron.ipcRenderer.send('openLauncher');
-	}
-
 	logout() {
 		this.electron.ipcRenderer.send('logout');
 	}

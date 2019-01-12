@@ -54,7 +54,13 @@ class Launcher {
 	async login(id, password, saveEmail=true, saveLogin=true) {
 		const firstHash = this.nexonLogin.firstHashPassword(password);
 
-		if(saveLogin && saveEmail){
+		this.id = id;
+		this.passwordHash = firstHash;
+
+		const res = await this.loginFromSaved();
+		if(!res) return res;
+
+		if(saveLogin && saveEmail) {
 			this.store.state.password = this.passwordHash;
 		}
 
@@ -63,10 +69,7 @@ class Launcher {
 			await this.store.requestSave();
 		}
 
-		this.id = id;
-		this.passwordHash = firstHash;
-
-		return await this.loginFromSaved();
+		return res;
 	}
 
 	async loginFromSaved() {
@@ -170,11 +173,14 @@ class Launcher {
 	}
 
 	async launchGame(gameId, launchArgs) {
+		let username = null;
 		try {
-			await this.loginFromSaved();
+			username = await this.loginFromSaved();
 		} catch(e) {
 			throw new ErrorLoginFailed(e.message);
 		}
+
+		if(!username) throw new ErrorLoginFailed();
 
 		return await opn(await this.createLaunchURI(gameId, launchArgs));
 	}

@@ -40,6 +40,28 @@ const Battlerite = {
 		return 'Battlerite.exe';
 	},
 
+	getName() {
+		return 'Battlerite';
+	},
+
+	getNames() {
+		return [
+			{
+				name: '배틀라이트 아레나',
+				launchArgs: false
+			},
+
+			{
+				name: '배틀라이트 로얄',
+				launchArgs: true
+			}
+		];
+	},
+
+	get fastStartEnabled() {
+		return true;
+	},
+
 	get id() {
 		return 'battlerite';
 	},

@@ -24,7 +24,7 @@ class NexonLogin {
 			}
 		});
 
-		const xml = nxml.replace(/^.*\('/, '').replace(/'\);$/, '');
+		const xml = nxml.replace(/^.*?\('/, '').replace(/'\);$/, '');
 		const root = xml2js(xml);
 
 		const parseObject = (parsed, object) => {

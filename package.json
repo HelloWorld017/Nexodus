@@ -37,6 +37,7 @@
     "cson": "^5.1.0",
     "deepmerge": "^3.0.0",
     "electron": "^4.0.0",
+    "electron-is-dev": "^1.0.1",
     "is-electron": "^2.2.0",
     "moment": "^2.23.0",
     "node-machine-id": "^1.1.10",

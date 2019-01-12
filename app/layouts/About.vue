@@ -6,6 +6,7 @@
 				<h1>Nexodus</h1>
 				<div class="About__description">서드파티 넥슨 게임 런쳐</div>
 				<div class="About__value">Nexodus {{version}}</div>
+				<div class="About__value">Codename Caydesix</div>
 				<div class="About__value">Released @ {{builddate}}</div>
 				<div class="About__value">Developed by Khinenw</div>
 			</div>

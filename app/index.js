@@ -132,6 +132,12 @@ const Nexodus = {
 			]
 		});
 
+		if(this.environment === 'electron-renderer') {
+			this.electron.ipcRenderer.on('showGame', (evt, game) => {
+				this.router.push(`/${game}/`);
+			});
+		}
+
 		this.vm = new Vue({
 			router: this.router,
 			store: this.store,

@@ -116,8 +116,6 @@
 				} else {
 					try {
 						await $nexodus.launcher.login(this.id, this.password);
-						$nexodus.launcher.openLauncher();
-
 					} catch(e) {
 						const {message, isFatal} = e;
 
