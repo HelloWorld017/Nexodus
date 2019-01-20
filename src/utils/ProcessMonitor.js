@@ -3,14 +3,15 @@ const psList = require('ps-list');
 const EventEmitter = require('events');
 
 class ProcessMonitor extends EventEmitter {
-	constructor() {
+	constructor(nexodus) {
 		super();
+		this.nexodus = nexodus;
 		this.monitoring = {};
 		this.running = [];
 	}
 
 	monitorGame(game, args) {
-		console.log('Start monitoring ' + this.normalizeExecutable(game.getExecutable(args)));
+		this.nexodus.log('Start monitoring ' + this.normalizeExecutable(game.getExecutable(args)));
 
 		this.monitoring[game.id] = {
 			target: this.normalizeExecutable(game.getExecutable(args)),
@@ -34,7 +35,10 @@ class ProcessMonitor extends EventEmitter {
 			runningTime: Date.now() - started
 		});
 
-		delete this.monitoring[gameKey];
+		// delete this.monitoring[gameKey];
+		// Sometimes, the game restarts.
+
+		this.monitoring[gameKey].started = 0;
 	}
 
 	async checkUpdate() {

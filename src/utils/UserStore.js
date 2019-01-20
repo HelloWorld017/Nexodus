@@ -124,7 +124,7 @@ class UserStore {
 
 		setTimeout(() => {
 			if(this.lastSaveRequest === timestamp) this.save();
-		}, 5000);
+		}, 1000);
 	}
 
 	get keyString() {

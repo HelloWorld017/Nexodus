@@ -47,12 +47,12 @@ const Battlerite = {
 	getNames() {
 		return [
 			{
-				name: '배틀라이트 아레나',
+				name: 'Battlerite Arena',
 				launchArgs: false
 			},
 
 			{
-				name: '배틀라이트 로얄',
+				name: 'Battlerite Royale',
 				launchArgs: true
 			}
 		];

@@ -1,13 +1,17 @@
 {
   "name": "Nexodus",
-  "version": "1.0.0",
+  "version": "0.0.2-beta",
   "description": "A 3rd-party launcher for nexon games",
   "main": "src/index.js",
   "scripts": {
     "dev": "cross-env NEXODUS_TARGET=web webpack-dev-server --inline --hot",
-    "dist": "echo \"Not Implemented Yet\"",
+    "dist": "npm run dist:webpack && npm run dist:electron",
+    "dist:electron": "cross-env NEXODUS_TARGET=electron NODE_ENV=production electron-builder",
+    "dist:webpack": "cross-env NEXODUS_TARGET=electron NODE_ENV=production webpack",
+    "pack": "cross-env NEXODUS_TARGET=electron electron-builder --dir",
     "watch": "cross-env NEXODUS_TARGET=electron webpack --watch",
-    "build": "cross-env NEXODUS_TARGET=electron NODE_ENV=production webpack",
+    "build": "npm run dist:webpack",
+    "build:web": "cross-env NEXODUS_TARGET=web NODE_ENV=production webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
   },
@@ -36,8 +40,8 @@
     "axios": "^0.18.0",
     "cson": "^5.1.0",
     "deepmerge": "^3.0.0",
-    "electron": "^4.0.0",
     "electron-is-dev": "^1.0.1",
+    "electron-updater": "^4.0.6",
     "is-electron": "^2.2.0",
     "moment": "^2.23.0",
     "node-machine-id": "^1.1.10",
@@ -58,6 +62,9 @@
     "babel-loader": "^8.0.4",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
+    "electron": "^4.0.0",
+    "electron-builder": "^20.38.5",
+    "electron-builder-squirrel-windows": "^20.38.5",
     "file-loader": "^3.0.1",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
@@ -71,5 +78,28 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpackbar": "^3.1.4"
+  },
+  "build": {
+    "appId": "com.khinenw.nexodus",
+    "files": [
+      "dist/**/*",
+      "src/**/*",
+      "index.html"
+    ],
+    "directories": {
+      "output": "bin"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "app/images/Nexodus.ico"
+    }
   }
 }

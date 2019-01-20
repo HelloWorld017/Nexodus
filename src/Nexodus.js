@@ -1,5 +1,4 @@
 const {BrowserWindow, Menu, Tray} = require('electron');
-const Battlerite = require('./games/Battlerite');
 const EventEmitter = require('events');
 const {ErrorUnknown} = require('./utils/Errors');
 const Launcher = require('./Launcher');
@@ -8,6 +7,7 @@ const Statistics = require('./utils/Statistics');
 
 const {app, dialog, ipcMain, protocol} = require('electron');
 const {exists} = require('./utils/utils');
+const games = require('./games');
 const isDev = require('electron-is-dev');
 const opn = require('opn');
 const path = require('path');
@@ -21,7 +21,7 @@ class Nexodus extends EventEmitter {
 		this.registerGames();
 		this.launcher = new Launcher(this);
 
-		this.monitor = new ProcessMonitor();
+		this.monitor = new ProcessMonitor(this);
 		this.stats = {};
 	}
 
@@ -33,27 +33,11 @@ class Nexodus extends EventEmitter {
 
 		if(general.enableTray) {
 			this.tray = new Tray(path.resolve(__dirname, '..', 'app', 'images', 'Nexodus.ico'));
-			this.trayMenu = Menu.buildFromTemplate([
-				...this.getTrayGames(),
-
-				{ type: 'separator' },
-
-				{
-					label: '열기',
-					click() {
-						this.show();
-					}
-				},
-
-				{
-					label: '종료',
-					click() {
-						this.beforeExit();
-					}
-				}
-			]);
 			this.tray.setToolTip('Nexodus');
-			this.tray.setContextMenu(this.trayMenu);
+			this.tray.setContextMenu(this.getMenu());
+			this.tray.on('click', () => {
+				this.show();
+			});
 
 			if(general.runAsMinimized && args.includes('--auto-start')) return;
 		}
@@ -64,7 +48,9 @@ class Nexodus extends EventEmitter {
 	async show() {
 		if(!this.launcher.loggedIn) {
 			await this.showLogin();
-			this.on('login', () => {
+
+			this.removeAllListeners('login.ui');
+			this.on('login.ui', () => {
 				this.showLauncher();
 			});
 		} else {
@@ -75,35 +61,6 @@ class Nexodus extends EventEmitter {
 	async init() {
 		await this.launcher.init();
 		if(!this.launcher.store.state.stats) this.launcher.store.state.stats = {};
-
-		this.stats = Object.keys(this.games).reduce((prev, curr) => {
-			const data = this.launcher.store.state.stats[curr];
-			let stat;
-
-			if(data) {
-				stat = Statistics.importData(curr, data);
-			} else {
-				stat = new Statistics(curr);
-			}
-
-			stat.on('updateStatistics', () => {
-				const exportData = stat.exportData();
-				this.log(`Status updated for ${curr} : ${exportData}`);
-
-				this.launcher.store.state.stats[curr] = exportData;
-				this.launcher.store.requestSave();
-
-				if(this.mainWindow) {
-					this.mainWindow.webContents.send('statistics', {
-						game: curr,
-						data: exportData
-					});
-				}
-			});
-
-			prev[curr] = stat;
-			return prev;
-		}, {});
 
 		this.monitor.on('start', ({gameName}) => {
 			this.log(`Started ${gameName}`);
@@ -126,7 +83,9 @@ class Nexodus extends EventEmitter {
 		this.registerProtocol();
 
 		app.on('window-all-closed', () => {
-			this.launcher.store.state.config.general
+			if(!this.launcher.store.state.config.general.closeMeansMinimize) {
+				this.beforeExit();
+			}
 		});
 
 		ipcMain.on('login', async ({sender}, {id, password}) => {
@@ -157,17 +116,16 @@ class Nexodus extends EventEmitter {
 				username: this.launcher.username
 			});
 
+			this.emit('login.ui');
 			BrowserWindow.fromWebContents(sender).close();
-
-			this.emit('login');
 		});
 
-		ipcMain.on('logout', ({sender}) => {
+		ipcMain.on('logout', async ({sender}) => {
+			this.launcher.logout();
+			await this.show();
+
 			const win = BrowserWindow.fromWebContents(sender);
 			win.close();
-
-			this.launcher.logout();
-			this.showLogin();
 		});
 
 		ipcMain.on('config', async (event, {section, config, value}) => {
@@ -202,12 +160,20 @@ class Nexodus extends EventEmitter {
 					prev[k] = this.stats[k].exportData();
 					return prev;
 				}, {}),
+				id: this.launcher.id,
 				username: this.launcher.username
 			});
 		});
 
-		this.on('exitPrompt', () => {
-			this.beforeExit(true);
+		this.on('exitPrompt', resp => {
+			if(resp) {
+				this.beforeExit(true);
+				return;
+			}
+
+			if(!this.launcher.store.state.config.general.closeMeansMinimize && !this.mainWindow) {
+				this.showLauncher();
+			}
 		});
 
 		this.on('security.saveEmail', value => {
@@ -220,27 +186,71 @@ class Nexodus extends EventEmitter {
 
 		this.on('general.runOnStartup', async value => {
 			try {
-				const appFolder = path.dirname(process.execPath);
-				const updateExe = path.resolve(appFolder, '..', 'Update.exe');
-				const exeName = path.basename(process.execPath);
-
-				if(await exists(updateExe)) {
-					app.setLoginItemSettings({
-						openAtLogin: value,
-						path: updateExe,
-						args: [
-							'--processStart', `"${exeName}"`,
-							'--process-start-args', `"--auto-start"`
-						]
-					});
-				} else {
-					app.setLoginItemSettings({
-						openAtLogin: value,
-						args: ['--auto-start']
-					});
-				}
+				app.setLoginItemSettings({
+					openAtLogin: value,
+					args: ['--auto-start']
+				});
 			} catch(e) {}
 		});
+
+		this.on('login', () => {
+			if(!this.launcher.store.state.stats[this.launcher.id])
+				this.launcher.store.state.stats[this.launcher.id] = {};
+
+			this.stats = Object.keys(this.games).reduce((prev, curr) => {
+				const data = this.launcher.store.state.stats[this.launcher.id][curr];
+				let stat;
+
+				if(data) {
+					stat = Statistics.importData(curr, data);
+				} else {
+					stat = new Statistics(curr);
+				}
+
+				stat.on('updateStatistics', () => {
+					const exportData = stat.exportData();
+					this.log(`Status updated for ${curr}`);
+
+					this.launcher.store.state.stats[this.launcher.id][curr] = exportData;
+					this.launcher.store.requestSave();
+
+					if(this.mainWindow) {
+						this.mainWindow.webContents.send('statistics', {
+							game: curr,
+							data: exportData
+						});
+					}
+				});
+
+				prev[curr] = stat;
+				return prev;
+			}, {});
+
+			if(this.tray) this.tray.setContextMenu(this.getMenu());
+		});
+
+		this.on('logout', () => {
+			this.stats = {};
+			if(this.tray) this.tray.setContextMenu(this.getMenu());
+		});
+
+		this.on('launch', () => {
+			switch(this.launcher.store.state.config.general.afterLaunch) {
+				case 'close':
+					this.beforeExit(true);
+					break;
+
+				case 'minimize':
+					if(this.mainWindow) this.mainWindow.minimize();
+					break;
+
+				case 'tray':
+					if(this.mainWindow) this.mainWindow.close();
+					break;
+			}
+		});
+
+		if(this.launcher.loggedIn) this.emit('login');
 	}
 
 	async launch({game, args}) {
@@ -250,14 +260,15 @@ class Nexodus extends EventEmitter {
 		try {
 			await this.launcher.launchGame(game, args);
 			this.monitor.monitorGame(this.games[game], args);
+			this.emit('launch');
 		} catch(err) {
 			this.logError(err);
 
 			if(err.nexodusName === 'LoginFailed') {
-				this.removeAllListeners('login');
+				this.removeAllListeners('login.ui');
 				await this.showLogin();
 
-				this.on('login', () => {
+				this.on('login.ui', () => {
 					this.launch({game, args});
 				});
 			}
@@ -269,7 +280,7 @@ class Nexodus extends EventEmitter {
 	}
 
 	registerGames() {
-		this.registerGame(Battlerite);
+		games.forEach(game => this.registerGame(game));
 	}
 
 	registerProtocol() {
@@ -357,21 +368,50 @@ class Nexodus extends EventEmitter {
 			});
 
 			this.mainWindow.loadURL('nexodus://caydesix/');
-			this.mainWindow.openDevTools();
 		});
 	}
 
+	getMenu() {
+		return Menu.buildFromTemplate([
+			...this.getTrayGames(),
+
+			{ type: 'separator' },
+
+			{
+				label: '열기',
+				click: () => {
+					this.show();
+				}
+			},
+
+			{
+				label: '종료',
+				click: () => {
+					this.beforeExit();
+				}
+			}
+		]);
+	}
+
 	getTrayGames() {
-		return Object.keys(this.stats)
-			.map(gameName => this.stats[gameName])
-			.sort((v1, v2) => {
+		const allStats = this.launcher.store.state.stats || {};
+		if(!this.launcher.id) return [];
+
+		const stats = allStats[this.launcher.id];
+		if(!stats) return [];
+
+		return Object.keys(stats)
+			.sort((n1, n2) => {
+				const v1 = stats[n1];
+				const v2 = stats[n2];
+
 				if(!v1.recent && v2.recent) return 1;
 				if(!v2.recent && v1.recent) return -1;
 				if(!v1.recent && !v2.recent) return 0;
 
 				return v2.recent - v1.recent;
 			})
-			.map(({game: gameName}) => {
+			.map(gameName => {
 				const game = this.games[gameName];
 
 				if(game.fastStartEnabled) {
@@ -381,7 +421,7 @@ class Nexodus extends EventEmitter {
 							submenu: game.getNames().map(({name, launchArgs}) => {
 								return {
 									label: name,
-									click() {
+									click: () => {
 										this.launch({
 											game: game.id,
 											args: launchArgs
@@ -394,7 +434,7 @@ class Nexodus extends EventEmitter {
 
 					return {
 						label: game.getName(),
-						click() {
+						click: () => {
 							this.launch({
 								game: game.id
 							});
@@ -404,7 +444,7 @@ class Nexodus extends EventEmitter {
 
 				return {
 					label: game.getName(),
-					async click() {
+					click: async () => {
 						await this.showLauncher();
 						this.mainWindow.webContents.send('showGame', game.id);
 					}

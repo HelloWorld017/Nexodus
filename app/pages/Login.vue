@@ -98,7 +98,7 @@
 	export default {
 		data() {
 			return {
-				id: '',
+				id: this.$store.state.id,
 				password: '',
 				loggingIn: false
 			};

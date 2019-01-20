@@ -26,7 +26,7 @@
 			},
 
 			launch() {
-				$nexodus.launcher.launch('kartrider', isRoyale);
+				$nexodus.launcher.launch('kartrider');
 			}
 		}
 	};

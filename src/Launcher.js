@@ -96,6 +96,7 @@ class Launcher {
 
 		this.loggedIn = true;
 		this.username = firstUser.nickName;
+		this.nexodus.emit('login');
 
 		return this.username;
 	}
@@ -121,7 +122,8 @@ class Launcher {
 		this.username = null;
 		this.passwordHash = null;
 		this.loggedIn = false;
-		this.launcher.forget(false);
+		this.forget(false);
+		this.nexodus.emit('logout');
 	}
 
 	forget(forgetEmail=true, forgetPassword=true) {

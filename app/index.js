@@ -58,7 +58,7 @@ const Nexodus = {
 				},
 
 				statistics: {},
-
+				id: '',
 				username: null
 			},
 
@@ -75,7 +75,7 @@ const Nexodus = {
 					state.statistics = stats;
 				},
 
-				staticsGameSet(state, {game, data}) {
+				statisticsGameSet(state, {game, data}) {
 					Vue.set(state.statistics, game, data);
 				},
 
@@ -85,6 +85,10 @@ const Nexodus = {
 
 				usernameSet(state, username) {
 					state.username = username;
+				},
+
+				idSet(state, id) {
+					state.id = id;
 				}
 			},
 
@@ -96,10 +100,11 @@ const Nexodus = {
 			this.handle = new WindowHandle(this.electron);
 			this.launcher = new Launcher(this.electron, this.store);
 
-			const {config, statistics, username} = await this.launcher.retrieveSettings();
+			const {config, statistics, username, id} = await this.launcher.retrieveSettings();
 			this.store.commit('configSet', config);
 			this.store.commit('statisticsSet', statistics);
 			this.store.commit('usernameSet', username);
+			this.store.commit('idSet', id);
 
 			mode = 'history';
 		}

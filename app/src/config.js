@@ -49,7 +49,7 @@ export default {
 			type: 'enum',
 			enums: [
 				{
-					name: '완전히 종료',
+					name: '완전히 종료 (통계 기능 사용 불가)',
 					value: 'close'
 				},
 

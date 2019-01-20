@@ -62,6 +62,7 @@
 		&__logo {
 			width: 20vw;
 			height: 20vw;
+			pointer-events: none;
 		}
 
 		&__info {
