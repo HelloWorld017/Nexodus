@@ -1,6 +1,6 @@
 {
   "name": "Nexodus",
-  "version": "0.0.3-beta",
+  "version": "0.0.4-beta",
   "description": "A 3rd-party launcher for nexon games",
   "main": "src/index.js",
   "scripts": {

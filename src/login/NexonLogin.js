@@ -66,7 +66,10 @@ class NexonLogin {
 	async login(id, password, isFirstHashed=false) {
 		await this.initLogin();
 
-		const payload = [id, this.hashPassword(password, isFirstHashed)];
+		const isOld = !id.includes('@');
+
+		const payload = [id, isOld ? password : this.hashPassword(password, isFirstHashed)];
+		
 		const body = {
 			strEncData: this.encryptPayload(payload),
 			codeRegSite: 0

@@ -52,10 +52,11 @@ class Launcher {
 	}
 
 	async login(id, password, saveEmail=true, saveLogin=true) {
+		const isOld = !id.includes('@');
 		const firstHash = this.nexonLogin.firstHashPassword(password);
 
 		this.id = id;
-		this.passwordHash = firstHash;
+		this.passwordHash = isOld ? password : firstHash;
 
 		const res = await this.loginFromSaved();
 		if(!res) return res;
