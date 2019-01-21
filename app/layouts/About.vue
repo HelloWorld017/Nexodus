@@ -54,9 +54,9 @@
 		}
 
 		&__description, &__value {
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			font-size: 0.9rem;
-			font-weight: 400;
+			font-weight: 500;
 
 			color: rgba(0, 0, 0, .6);
 			text-shadow: 1px 1px rgba(0, 0, 0, .2);
@@ -77,8 +77,8 @@
 
 			color: #202020;
 
-			font-family: 'Noto Sans CJK KR', sans-serif;
-			font-weight: 400;
+			font-family: 'Noto Sans KR', sans-serif;
+			font-weight: 500;
 			font-size: 1.1rem;
 			text-shadow: 1px 1px rgba(0, 0, 0, .2);
 		}

@@ -43,7 +43,7 @@
 
 <style lang="less" scoped>
 	.Config {
-		font-family: 'Noto Sans CJK KR', sans-serif;
+		font-family: 'Noto Sans KR', sans-serif;
 		box-sizing: border-box;
 		width: 100%;
 		height: 100%;
@@ -54,7 +54,7 @@
 		& > h1 {
 			color: #f1f1f1;
 			font-size: 3.3rem;
-			font-weight: 100;
+			font-weight: 700;
 			margin-top: 0;
 		}
 

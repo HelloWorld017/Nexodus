@@ -58,7 +58,7 @@
 			margin-bottom: 40px !important;
 
 			color: #f1f1f1;
-			font-family: 'NanumSquare', sans-serif;
+			font-family: 'Nanum Square', sans-serif;
 			font-size: 2rem;
 			font-weight: 100;
 			text-align: center;
@@ -85,7 +85,7 @@
 		align-items: center;
 
 		color: rgba(255, 255, 255, .8);
-		font-family: 'Noto Sans CJK KR', sans-serif;
+		font-family: 'Noto Sans KR', sans-serif;
 	}
 </style>
 

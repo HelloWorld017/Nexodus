@@ -36,7 +36,7 @@
 
 			color: #f1f1f1;
 			font-size: 1.1rem;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 
 			transition: all .4s ease;
 		}
@@ -71,7 +71,7 @@
 			color: #f1f1f1;
 			outline: none;
 			font-size: 1.1rem;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			text-align: left;
 
 			&:hover {

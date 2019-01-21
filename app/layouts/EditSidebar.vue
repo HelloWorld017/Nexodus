@@ -37,7 +37,7 @@
 			margin-bottom: 30px;
 
 			color: #fff;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			font-weight: 100;
 			font-size: 3.3rem;
 		}
@@ -53,7 +53,7 @@
 
 		&__title {
 			color: #f1f1f1;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 
 			margin: 0;
 			margin-left: 30px;

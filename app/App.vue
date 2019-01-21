@@ -60,7 +60,7 @@
 			height: 48px;
 
 			color: rgba(255, 255, 255, .8);
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			font-size: .8rem;
 			line-height: 48px;
 			-webkit-app-region: no-drag;
@@ -114,7 +114,7 @@
 			outline: none;
 
 			color: #fff;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			font-size: .9rem;
 
 			cursor: pointer;

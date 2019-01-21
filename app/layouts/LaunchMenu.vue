@@ -144,7 +144,7 @@
 			outline: none;
 
 			color: #fff;
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 
 			cursor: pointer;
 			transition: all .4s ease;
@@ -165,9 +165,11 @@
 			display: flex;
 			margin-right: 20px;
 
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 			font-size: .9rem;
-			font-weight: 200;
+			font-weight: 300;
+			letter-spacing: -0.5px;
+
 
 			&__key {
 				color: rgba(255, 255, 255, .6);

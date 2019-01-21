@@ -85,7 +85,7 @@
 		&__description {
 			display: flex;
 			color: rgba(255, 255, 255, .4);
-			font-family: 'Lato', sans-serif;
+			font-family: 'Nanum Square', sans-serif;
 			font-size: 1.2rem;
 
 			* {
@@ -114,7 +114,7 @@
 			cursor: pointer;
 			color: rgba(255, 255, 255, .4);
 			font-size: 1.1rem;
-			font-family: 'NanumSquare', sans-serif;
+			font-family: 'Nanum Square', sans-serif;
 			margin: 0 15px;
 			transition: all .4s ease;
 

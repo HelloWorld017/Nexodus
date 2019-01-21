@@ -22,7 +22,7 @@
 			outline: none;
 
 			color: rgba(0, 0, 0, .8);
-			font-family: 'Noto Sans CJK KR', sans-serif;
+			font-family: 'Noto Sans KR', sans-serif;
 
 			transition: all .4s ease;
 

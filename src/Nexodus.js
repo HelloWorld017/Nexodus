@@ -5,7 +5,7 @@ const Launcher = require('./Launcher');
 const ProcessMonitor = require('./utils/ProcessMonitor');
 const Statistics = require('./utils/Statistics');
 
-const {app, dialog, ipcMain, protocol} = require('electron');
+const {app, dialog, ipcMain, nativeImage, protocol} = require('electron');
 const {exists} = require('./utils/utils');
 const games = require('./games');
 const isDev = require('electron-is-dev');
@@ -32,7 +32,9 @@ class Nexodus extends EventEmitter {
 		const general = this.launcher.store.state.config.general;
 
 		if(general.enableTray) {
-			this.tray = new Tray(path.resolve(__dirname, '..', 'app', 'images', 'Nexodus.ico'));
+			const trayIcon = nativeImage.createFromPath(path.resolve(__dirname, '..', 'app', 'images', 'Nexodus.png'));
+
+			this.tray = new Tray(trayIcon);
 			this.tray.setToolTip('Nexodus');
 			this.tray.setContextMenu(this.getMenu());
 			this.tray.on('click', () => {
