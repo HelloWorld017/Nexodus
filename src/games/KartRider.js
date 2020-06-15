@@ -1,6 +1,3 @@
-const CSON = require('cson');
-const {ErrorServer} = require('../utils/Errors');
-
 const KartRider = {
 	async getStartArgs(launcher) {
 		return {
