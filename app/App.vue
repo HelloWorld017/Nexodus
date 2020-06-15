@@ -79,16 +79,17 @@
 		&__button {
 			circle {
 				transition: all .4s ease;
-				fill: transparent;
 				cursor: pointer;
 			}
 
 			circle:hover {
-				fill: #fff;
+				fill: transparent;
+				stroke-width: 4px;
 			}
 
 			&--exit circle:hover {
-				fill: #e26b6b;
+				fill: transparent;
+				stroke-width: 4px;
 			}
 		}
 	}
