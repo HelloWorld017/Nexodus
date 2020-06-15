@@ -6,9 +6,10 @@ import App from "./App.vue";
 import Battlerite from "./games/battlerite";
 import EditSidebar from "./layouts/EditSidebar.vue";
 import Games from "./pages/Games.vue";
-import Kartrider from "./games/Kartrider";
+import Kartrider from "./games/kartrider";
 import Launcher from "./src/Launcher";
 import Login from "./pages/Login.vue";
+import Maple2 from "./games/maple2";
 import NexodusLayout from "./layouts/Nexodus.vue";
 import Vue from "vue";
 import VueRouter from "vue-router";
@@ -158,4 +159,5 @@ window.$nexodus = Nexodus;
 
 $nexodus.registerGame(Battlerite);
 $nexodus.registerGame(Kartrider);
+$nexodus.registerGame(Maple2);
 $nexodus.init();
