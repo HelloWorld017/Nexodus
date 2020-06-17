@@ -1,8 +1,9 @@
 {
   "name": "Nexodus",
-  "version": "0.0.4-beta",
+  "version": "0.0.5-beta",
   "description": "A 3rd-party launcher for nexon games",
   "main": "src/index.js",
+  "private": true,
   "scripts": {
     "dev": "cross-env NEXODUS_TARGET=web webpack-dev-server --inline --hot",
     "dist": "npm run dist:webpack && npm run dist:electron",
@@ -42,7 +43,6 @@
     "deepmerge": "^3.0.0",
     "electron-is-dev": "^1.0.1",
     "electron-updater": "^4.0.6",
-    "is-electron": "^2.2.0",
     "moment": "^2.23.0",
     "node-machine-id": "^1.1.10",
     "opn": "^5.4.0",
