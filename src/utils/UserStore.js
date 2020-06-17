@@ -25,7 +25,7 @@ class UserStore {
 		}).filter(v => v);
 
 		this.mac = this.macs.length < 1 ? '' : this.macs.pop();
-		this.cpu =  os.cpus().pop().model;
+		this.cpu =  os.cpus().pop().model.trim();
 		this.memory = os.totalmem();
 		this.homedir = os.homedir();
 		this.hostname = os.hostname();
@@ -81,17 +81,31 @@ class UserStore {
 
 		const {encStore, store} = JSON.parse(await promisify(fs.readFile)(this.configPath, 'utf8'));
 
-		const {encrypted, iv} = encStore;
-		const decipher = crypto.createDecipheriv('aes-256-cbc', this.derivedHash, Buffer.from(iv, 'hex'));
-		let decrypted = decipher.update(encrypted, 'base64', 'utf8');
-		decrypted += decipher.final('utf8');
+		let decrypted = {};
 
-		const {encrypted: storeEncrypted} = store;
-		const storeDecipher = crypto.createDecipheriv('aes-256-cbc', this.obfKey, Buffer.alloc(16));
-		let storeDecrypted = storeDecipher.update(storeEncrypted, 'base64', 'utf8');
-		storeDecrypted += storeDecipher.final('utf8');
+		try {
+			const {encrypted, iv} = encStore;
+			const decipher = crypto.createDecipheriv('aes-256-cbc', this.derivedHash, Buffer.from(iv, 'hex'));
+			let decryptedStr = decipher.update(encrypted, 'base64', 'utf8');
+			decryptedStr += decipher.final('utf8');
+			decrypted = JSON.parse(decryptedStr);
+		} catch(err) {
+			this.launcher.nexodus.logError(err);
+		}
 
-		return Object.assign({}, JSON.parse(decrypted), JSON.parse(storeDecrypted));
+		let storeDecrypted = {};
+
+		try {
+			const {encrypted: storeEncrypted} = store;
+			const storeDecipher = crypto.createDecipheriv('aes-256-cbc', this.obfKey, Buffer.alloc(16));
+			let storeDecryptedStr = storeDecipher.update(storeEncrypted, 'base64', 'utf8');
+			storeDecryptedStr += storeDecipher.final('utf8');
+			storeDecrypted = JSON.parse(storeDecryptedStr)
+		} catch(err) {
+			this.launcher.nexodus.logError(err);
+		}
+
+		return Object.assign({}, decrypted, storeDecrypted);
 	}
 
 	async save() {
