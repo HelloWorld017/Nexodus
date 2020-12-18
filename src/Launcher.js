@@ -82,8 +82,8 @@ class Launcher {
 			this.cookie[key] = cookie[key];
 		});
 
-		const {data: pjson} = await this.axios.get(
-			'https://ps.nexon.com/global/usernick.aspx?_vb=GetInfo&callback=callback',
+		const { data: { UserNick } } = await this.axios.get(
+			'https://oasisapi.nexon.com/Account/info',
 			{
 				headers: {
 					Referer: this.referer,
@@ -92,11 +92,8 @@ class Launcher {
 			}
 		);
 
-		const {d: userList} = this.parsePJSON(pjson);
-		const [firstUser] = userList;
-
 		this.loggedIn = true;
-		this.username = firstUser.nickName;
+		this.username = UserNick;
 		this.nexodus.emit('login');
 
 		return this.username;
